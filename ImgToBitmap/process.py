@@ -2,6 +2,9 @@ from PIL import Image
 import os
 import struct
 
+# NOTE: This constant is multiplied to panned images/videos due to overhead delay
+OVERHEAD_FACTOR = 0.8
+
 class Media:
     def __init__(self, frames, sleep):
         self.frames = frames
@@ -23,7 +26,6 @@ def rgb_to_rgb565(r, g, b):
 
 def resize_image(img):
     width, height = img.size
-
     ratio = width / height
     pan = 0
     new_size = (PANEL_LENGTH, PANEL_LENGTH)
@@ -69,14 +71,14 @@ def parse_media():
 
         frames = []
         if pan == 1:
-            for offset in range(0, width - PANEL_LENGTH + 1, 2):
+            for offset in range(0, width - PANEL_LENGTH + 1, 1):
                 frames.append(convert_frame(img, offset=(offset, 0)))
         else:
-            for offset in range(0, height - PANEL_LENGTH + 1, 2):
+            for offset in range(0, height - PANEL_LENGTH + 1, 1):
                 frames.append(convert_frame(img, offset=(0, offset)))
         
         # Pans left/right or top/bottom in 5 seconds
-        gallery.append(Media(frames, int(5000 / len(frames))))
+        gallery.append(Media(frames, int(5000 / len(frames) * OVERHEAD_FACTOR)))
 
     return gallery
 

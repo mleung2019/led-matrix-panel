@@ -40,17 +40,16 @@ void setup()
 
 void loop()
 {
-  // display->flipDMABuffer(); // Not used if double buffering isn't enabled
-  // delay(25);
-  // display->clearScreen();
-  
   int mediaIndex = 0;
   int frameNum = 0;
   int sleep = 0;
   fetchGalleryInfo(&mediaIndex, &frameNum, &sleep);
-  
-  for (int frame = 0; frame < frameNum; frame++) {
-    display->drawRGBBitmap(0, 0, fetchGalleryMedia(mediaIndex, frame), PANEL_RES_X, PANEL_RES_Y);
+  fetchGalleryMedia(mediaIndex);
+
+  for (int i = 0; i < frameNum; i++) {
+    fetchStream();
+    display->drawRGBBitmap(0, 0, mediaFrame, PANEL_RES_X, PANEL_RES_Y);
     delay(sleep);
   }
+  endStream();
 }
