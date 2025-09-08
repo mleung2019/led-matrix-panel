@@ -15,8 +15,8 @@ HUB75_I2S_CFG mxconfig(
   PANEL_CHAIN    // Chain length
 );
 
-const char *ssid = "REDACTED";
-const char *password = "REDACTED";
+const char *ssid = "xxx";
+const char *password = "xxx";
 
 void setup()
 {
@@ -43,7 +43,14 @@ void loop()
   // display->flipDMABuffer(); // Not used if double buffering isn't enabled
   // delay(25);
   // display->clearScreen();
-
-  display->drawRGBBitmap(0, 0, convertFrame(fetchGallery()), PANEL_RES_X, PANEL_RES_Y);
-  delay(1000);
+  
+  int mediaIndex = 0;
+  int frameNum = 0;
+  int sleep = 0;
+  fetchGalleryInfo(&mediaIndex, &frameNum, &sleep);
+  
+  for (int frame = 0; frame < frameNum; frame++) {
+    display->drawRGBBitmap(0, 0, fetchGalleryMedia(mediaIndex, frame), PANEL_RES_X, PANEL_RES_Y);
+    delay(sleep);
+  }
 }
