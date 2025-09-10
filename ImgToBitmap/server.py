@@ -1,7 +1,5 @@
 from flask import Flask, Response
 import process
-import struct
-import time
 
 app = Flask(__name__)
 
@@ -37,27 +35,6 @@ def get_media(mediaIndex):
         mimetype="application/octet-stream",
         headers={"Content-Length": str(len(data))}
     )
-
-# @app.route("/gallery/stream")
-# def get_stream():
-#     def generate():
-#         while True:
-#             for media in gallery:
-#                 for frame in media.frames:
-#                     yield frame
-#                     pixels = struct.unpack("<20H", frame[:40])
-#                     print("First 20 pixels (hex RGB565):")
-#                     print(" ".join(f"{p:04X}" for p in pixels))
-#                     time.sleep(media.sleep / 1000.0)
-
-#     return Response(
-#         generate(), 
-#         mimetype="application/octet-stream",
-#         headers={
-#             "Content-Type": "application/octet-stream"
-#         },
-#         direct_passthrough=True
-#     )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

@@ -1,13 +1,13 @@
 #ifndef WIFICLIENT_H
 #define WIFICLIENT_H
 
-#include <Arduino.h>
+#define PANEL_PIXELS 64*64
+#define FRAME_SIZE PANEL_PIXELS*2
+#define PAYLOAD_SIZE 1400
 
-extern uint16_t mediaFrame[4096]; 
+extern uint16_t displayFrame[PANEL_PIXELS];
 
 void connectWiFi(const char *ssid, const char *password);
-void fetchGalleryInfo(int *mediaIndex, int *frameNum, int *sleep);
-void fetchGalleryMedia(int mediaIndex);
-void fetchStream();
-void endStream();
+void fetchGallery();
+
 #endif

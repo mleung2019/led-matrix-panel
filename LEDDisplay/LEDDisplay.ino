@@ -40,16 +40,6 @@ void setup()
 
 void loop()
 {
-  int mediaIndex = 0;
-  int frameNum = 0;
-  int sleep = 0;
-  fetchGalleryInfo(&mediaIndex, &frameNum, &sleep);
-  fetchGalleryMedia(mediaIndex);
-
-  for (int i = 0; i < frameNum; i++) {
-    fetchStream();
-    display->drawRGBBitmap(0, 0, mediaFrame, PANEL_RES_X, PANEL_RES_Y);
-    delay(sleep);
-  }
-  endStream();
+  fetchGallery();
+  display->drawRGBBitmap(0, 0, displayFrame, PANEL_RES_X, PANEL_RES_Y);
 }

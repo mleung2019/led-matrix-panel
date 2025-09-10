@@ -1,72 +1,57 @@
-#include <HTTPClient.h>
 #include <WiFi.h>
+#include <WiFiUdp.h>
+#include <HTTPClient.h>
 #include "wifiClient.h"
 
-#define PANEL_PIXELS 64*64
-#define FRAME_SIZE PANEL_PIXELS*2
+WiFiUDP udp;
+const int localPort = 5005;
 
-HTTPClient http;
-WiFiClient *stream = nullptr;
-uint16_t mediaFrame[4096]; 
+uint16_t tempFrame[PANEL_PIXELS];
+uint16_t displayFrame[PANEL_PIXELS];
+bool packetReceived[10];
+uint16_t currentFrameID = 0xFFFF;
 
 void connectWiFi(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
+  udp.begin(localPort);
   Serial.println("Connected to WiFi");
 }
 
-void fetchGalleryInfo(int *mediaIndex, int *frameNum, int *sleep) {
-  HTTPClient http;
+void fetchGallery() {
+  while (int packetSize = udp.parsePacket()) {
+    if (packetSize) {
+      uint8_t packet[1500];
+      int len = udp.read(packet, 1500);
 
-  // Request image
-  http.begin("http://192.168.0.23:5000/gallery"); 
-  int httpCode = http.GET();
-  if (httpCode != 200)
-    return;
+      // Extract header
+      uint16_t frameID = (packet[0] << 8) | packet[1];
+      uint8_t packetIdx = packet[2];
+      uint8_t totalPackets = packet[3];
 
-  char *str = strdup(http.getString().c_str());
-  char *token = strtok(str, ",");
-  int count = 0;
+      int payloadLen = len - 4;
+      int offset = packetIdx * 1400;
+      if (offset + payloadLen <= FRAME_SIZE) {
+        memcpy(((uint8_t *)tempFrame) + offset, packet + 4, payloadLen);
+        packetReceived[packetIdx] = true;
+      }
 
-  while (count < 3) {
-    if (count == 0) {
-      *mediaIndex = atoi(token);
-    }
-    else if (count == 1) {
-      *frameNum = atoi(token);
-    } else {
-      *sleep = atoi(token);
-    }
-    count++;
-    token = strtok(NULL, ","); 
-  }
+      bool complete = true;
+      for (int i = 0; i < totalPackets; i++) {
+        if (!packetReceived[i]) { complete = false; break; }
+      }
 
-  free(str);
-  http.end();
-}
+      if (complete) {
+        // Copy assembled frame
+        memcpy(displayFrame, tempFrame, FRAME_SIZE);
 
-void fetchGalleryMedia(int mediaIndex) {  
-  char serverURL[100];
-  sprintf(serverURL, "http://192.168.0.23:5000/gallery/%d", mediaIndex);
+        // Reset packet tracker
+        for (int i = 0; i < totalPackets; i++) packetReceived[i] = false;
 
-  http.begin(serverURL);
-  int httpCode = http.GET();
-  
-  stream = http.getStreamPtr();
-}
-
-void fetchStream() {
-  uint8_t buffer[2];
-  for (int i = 0; i < PANEL_PIXELS; i++) {
-    if (stream->readBytes(buffer, 2) == 2) {
-      mediaFrame[i] = buffer[0] | (buffer[1] << 8);
+        currentFrameID = frameID;
+      }
     }
   }
-}
-
-void endStream() {
-  http.end();
-  stream = nullptr;
 }
