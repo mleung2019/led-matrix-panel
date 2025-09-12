@@ -15,8 +15,9 @@ HUB75_I2S_CFG mxconfig(
   PANEL_CHAIN    // Chain length
 );
 
-const char *ssid = "xxx";
-const char *password = "xxx";
+const char *ssid = "x";
+const char *password = "x";
+const char *number = "55";
 
 void setup()
 {
@@ -28,18 +29,21 @@ void setup()
   delay(200);
 
   Serial.println("Starting display");
-  //mxconfig.double_buff = true; // Turn off double buffer
+  mxconfig.double_buff = true;
   mxconfig.clkphase = false;
   mxconfig.gpio.e = 32;
   
   display = new MatrixPanel_I2S_DMA(mxconfig);
   display->begin();  // Setup display with pins as pre-defined in the library
-  display->setBrightness8(90);
+  display->setBrightness8(50);
   display->clearScreen();
 }
 
 void loop()
 {
   fetchGallery();
-  display->drawRGBBitmap(0, 0, displayFrame, PANEL_RES_X, PANEL_RES_Y);
+  if (frameReady) {
+    display->drawRGBBitmap(0, 0, displayFrame, PANEL_RES_X, PANEL_RES_Y);
+    frameReady = false;
+  }
 }

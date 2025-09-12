@@ -1,19 +1,33 @@
 import socket
 import time
 import process
+import struct
 
 UDP_IP = "192.168.0.26"
 UDP_PORT = 5005
+
+PAYLOAD_SIZE = 1200
 
 gallery = process.parse_media()
 print("Gallery finished processing")
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Lower-latency tricks
+try:
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 65536)
+except Exception:
+    pass
+try:
+    IPTOS_LOWDELAY = 0x10
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_TOS, IPTOS_LOWDELAY)
+except Exception:
+    pass
+
 frame_id = 0
 
 def send_frame(frame_bytes, frame_id):
-    # Recommended packet size
-    packet_size = 1400
+    packet_size = PAYLOAD_SIZE
     total_packets = (len(frame_bytes) + packet_size - 1) // packet_size
 
     for i in range(total_packets):
@@ -21,10 +35,8 @@ def send_frame(frame_bytes, frame_id):
         end = min(start + packet_size, len(frame_bytes))
         payload = frame_bytes[start:end]
 
-        # Header: frame_id (2 bytes) 
-        # ----- packet index (1 byte) 
-        # ----- number of total packets (1 byte)
-        header = frame_id.to_bytes(2, "big") + i.to_bytes(1, "big") + total_packets.to_bytes(1, "big")
+        # Big endian
+        header = struct.pack(">HBB", frame_id & 0xFFFF, total_packets & 0xFF, i & 0xFF)
         sock.sendto(header + payload, (UDP_IP, UDP_PORT))
 
 while True:

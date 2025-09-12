@@ -4,9 +4,6 @@ import os
 import struct
 import mimetypes
 
-# NOTE: This constant is multiplied to panned images/videos due to overhead delay
-OVERHEAD_FACTOR = 1
-
 class Media:
     def __init__(self, frames, sleep):
         self.frames = frames
@@ -24,16 +21,6 @@ def rgb_to_rgb565(r, g, b):
     
     # Combine into a 16-bit value
     rgb565 = (r5 << 11) | (g6 << 5) | b5
-    return struct.pack("<H", rgb565)
-
-def bgr565_to_rgb565(pixel):
-    # Extract fields from BGR565
-    blue  = (pixel >> 11) & 0x1F
-    green = (pixel >> 5)  & 0x3F
-    red   = pixel & 0x1F
-
-    # Repack into RGB565
-    rgb565 = (red << 11) | (green << 5) | blue
     return struct.pack("<H", rgb565)
 
 def resize_image(img):
@@ -66,7 +53,7 @@ def convert_frame_cv2(bgr):
         for y in range(PANEL_LENGTH):
             low, high = bgr[x, y]
             pixel = (int(high) << 8) | int(low) 
-            rgb_values.extend(bgr565_to_rgb565(pixel))
+            rgb_values.extend(struct.pack("<H", pixel))
     return bytes(rgb_values)
 
 def parse_media():
@@ -103,7 +90,7 @@ def parse_media():
                     frames.append(convert_frame(img, offset=(0, offset)))
             
             # Pans left/right or top/bottom in 5 seconds
-            gallery.append(Media(frames, int(5000 / len(frames) * OVERHEAD_FACTOR)))
+            gallery.append(Media(frames, int(5000 / len(frames))))
 
         else:
             if primary == "video":
@@ -125,7 +112,7 @@ def parse_media():
                     
                     frames.append(convert_frame_cv2(bgr))
 
-                gallery.append(Media(frames, int(1000 / fps * OVERHEAD_FACTOR)))
+                gallery.append(Media(frames, int(1000 / fps)))
             
             if sub == "gif":
                 frames = []
@@ -140,7 +127,7 @@ def parse_media():
                     except EOFError:
                         pass
 
-                gallery.append(Media(frames, 100 * OVERHEAD_FACTOR))
+                gallery.append(Media(frames, 100))
 
     return gallery
 

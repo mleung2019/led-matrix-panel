@@ -6,52 +6,63 @@
 WiFiUDP udp;
 const int localPort = 5005;
 
-uint16_t tempFrame[PANEL_PIXELS];
 uint16_t displayFrame[PANEL_PIXELS];
-bool packetReceived[10];
+bool frameReady = false;
+
+uint16_t tempFrame[PANEL_PIXELS];
+bool packetReceived[MAX_PACKETS];
 uint16_t currentFrameID = 0xFFFF;
 
 void connectWiFi(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
+  unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(200);
+    if (millis() - start > 15000) {
+      // avoid hanging indefinitely; try again
+      Serial.println("WiFi connect timeout, retrying...");
+      start = millis();
+      WiFi.begin(ssid, password);
+    }
   }
   udp.begin(localPort);
-  Serial.println("Connected to WiFi");
+  Serial.print("Connected to WiFi, local port: ");
+  Serial.println(localPort);
 }
 
 void fetchGallery() {
-  while (int packetSize = udp.parsePacket()) {
-    if (packetSize) {
-      uint8_t packet[1500];
-      int len = udp.read(packet, 1500);
+  int packetSize;
+  while ((packetSize = udp.parsePacket()) > 0) {
+    uint8_t packet[1300];
+    int len = udp.read(packet, 1300);
 
-      // Extract header
-      uint16_t frameID = (packet[0] << 8) | packet[1];
-      uint8_t packetIdx = packet[2];
-      uint8_t totalPackets = packet[3];
+    uint16_t frameID = (packet[0] << 8) | packet[1];
+    uint8_t totalPackets = packet[2];
+    uint8_t packetIdx = packet[3];
 
-      int payloadLen = len - 4;
-      int offset = packetIdx * 1400;
-      if (offset + payloadLen <= FRAME_SIZE) {
+    // Reset if new frame
+    if (frameID != currentFrameID) {
+        for (int i = 0; i < MAX_PACKETS; i++) packetReceived[i] = false;
+        currentFrameID = frameID;
+    }
+
+    int payloadLen = len - 4;
+    int offset = packetIdx * PAYLOAD_SIZE;
+    if (offset + payloadLen <= FRAME_SIZE) {
         memcpy(((uint8_t *)tempFrame) + offset, packet + 4, payloadLen);
         packetReceived[packetIdx] = true;
-      }
+    }
 
-      bool complete = true;
-      for (int i = 0; i < totalPackets; i++) {
+    bool complete = true;
+    for (int i = 0; i < totalPackets; i++) {
         if (!packetReceived[i]) { complete = false; break; }
-      }
+    }
 
-      if (complete) {
-        // Copy assembled frame
+    if (complete) {
         memcpy(displayFrame, tempFrame, FRAME_SIZE);
-
-        // Reset packet tracker
         for (int i = 0; i < totalPackets; i++) packetReceived[i] = false;
-
-        currentFrameID = frameID;
-      }
+        frameReady = true;
     }
   }
 }
+
