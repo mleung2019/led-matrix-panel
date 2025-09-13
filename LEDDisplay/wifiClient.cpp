@@ -10,7 +10,7 @@ uint16_t displayFrame[PANEL_PIXELS];
 bool frameReady = false;
 
 uint16_t tempFrame[PANEL_PIXELS];
-bool packetReceived[MAX_PACKETS];
+uint32_t packetMask = 0;
 uint16_t currentFrameID = 0xFFFF;
 
 void connectWiFi(const char *ssid, const char *password) {
@@ -42,26 +42,22 @@ void fetchGallery() {
 
     // Reset if new frame
     if (frameID != currentFrameID) {
-        for (int i = 0; i < MAX_PACKETS; i++) packetReceived[i] = false;
-        currentFrameID = frameID;
+      packetMask = 0;
+      currentFrameID = frameID;
     }
 
     int payloadLen = len - 4;
     int offset = packetIdx * PAYLOAD_SIZE;
     if (offset + payloadLen <= FRAME_SIZE) {
-        memcpy(((uint8_t *)tempFrame) + offset, packet + 4, payloadLen);
-        packetReceived[packetIdx] = true;
+      memcpy(((uint8_t *)tempFrame) + offset, packet + 4, payloadLen);
+      packetMask |= (1UL << packetIdx);
     }
 
-    bool complete = true;
-    for (int i = 0; i < totalPackets; i++) {
-        if (!packetReceived[i]) { complete = false; break; }
-    }
-
-    if (complete) {
-        memcpy(displayFrame, tempFrame, FRAME_SIZE);
-        for (int i = 0; i < totalPackets; i++) packetReceived[i] = false;
-        frameReady = true;
+    uint32_t completeMask = (1UL << totalPackets) - 1;
+    if (packetMask == completeMask) {
+      memcpy(displayFrame, tempFrame, FRAME_SIZE);
+      packetMask = 0;
+      frameReady = true;
     }
   }
 }
