@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 import openmeteo_requests
@@ -16,6 +16,16 @@ def get_status(weather_code, is_day):
         status = data[str(int(weather_code))]["day" if is_day else "night"]
         return status
 
+def hours_ahead(start_time_str, hours=5):
+    start = datetime.strptime(start_time_str, "%-I:%M %p")
+    
+    results = []
+    for i in range(1, hours + 1):
+        new_time = start + timedelta(hours=i)
+        results.append(new_time.strftime("%I %p").lstrip("0"))
+    
+    return results
+
 async def fetch_info():
     # Time
     now = datetime.now()
@@ -24,6 +34,7 @@ async def fetch_info():
     # Location
     lat, lon, city, timezone = get_coords()
 
+    # Weather
     openmeteo = openmeteo_requests.Client()
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
@@ -61,6 +72,18 @@ async def fetch_info():
     daily_temperature_2m_max = daily.Variables(0).ValuesAsNumpy()
     daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
 
+    # JSON formatting
+    time_strs = hours_ahead(time_str, hours=5)
+    temps = [round(x) for x in hourly_temperature_2m][1:]
+    statuses = [
+        get_status(code, is_day) 
+        for code, is_day in zip(hourly_weather_code[1:], hourly_is_day[1:])
+    ]
+    five_hr_log = [
+        {"time_str": t, "temp": temp, "status": status} 
+        for t, temp, status in zip(time_strs, temps, statuses)
+    ]
+
     data = {
         "time_str": time_str,
         "city": city,
@@ -68,10 +91,7 @@ async def fetch_info():
         "high_temp": round(daily_temperature_2m_max[0]),
         "low_temp": round(daily_temperature_2m_min[0]),
         "status": get_status(current_weather_code, current_is_day),
-        "five_hr_logs": {
-            "temps": [round(x) for x in hourly_temperature_2m][1:],
-            "statuses": [get_status(c, d) for c, d in zip(hourly_weather_code[1:], hourly_is_day[1:])]
-        }
+        "five_hr_log": five_hr_log
     }
 
     return data
