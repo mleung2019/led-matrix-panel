@@ -11,8 +11,8 @@ load_dotenv()
 
 DUMMY_COVER_URL = None
 
-CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = "http://127.0.0.1:5001/spotify/callback"
 
 scope = "user-read-currently-playing"

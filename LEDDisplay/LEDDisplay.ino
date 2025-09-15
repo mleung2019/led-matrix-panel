@@ -1,5 +1,7 @@
 #include "ESP32-HUB75-MatrixPanel-I2S-DMA.h"
+
 #include "wifiClient.h"
+#include "widgets.h"
 
 /*--------------------- MATRIX PANEL CONFIG -------------------------*/
 #define PANEL_RES_X 64      // Number of pixels wide of each INDIVIDUAL panel module. 
@@ -15,19 +17,25 @@ HUB75_I2S_CFG mxconfig(
   PANEL_CHAIN    // Chain length
 );
 
+// WiFi
 const char *ssid = "x";
 const char *password = "x";
-const char *number = "55";
+
+// Widgets
+WeatherData *weather = nullptr;
 
 void setup()
 {
+  // Serial
   Serial.begin(115200);
   delay(1000);
+
+  // WiFi
   Serial.println("Attempting to connect to WiFi");
   connectWiFi(ssid, password);
-
   delay(200);
 
+  // Display config
   Serial.println("Starting display");
   mxconfig.double_buff = true;
   mxconfig.clkphase = false;
@@ -41,9 +49,17 @@ void setup()
 
 void loop()
 {
-  fetchGallery();
-  if (frameReady) {
-    display->drawRGBBitmap(0, 0, displayFrame, PANEL_RES_X, PANEL_RES_Y);
-    frameReady = false;
+  widgetControl(0);
+}
+
+// TODO: make delay non-blocking
+void widgetControl(int widgetIdx)
+{
+  // Weather
+  if (widgetIdx == 0) {
+    fetchWeather(weather);
+
+
+    delay(5000);
   }
 }

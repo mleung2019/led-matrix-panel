@@ -11,18 +11,23 @@ def get_coords():
     return lat, lon, city, timezone
 
 def get_status(weather_code, is_day):
+    wmo_code = int(weather_code)
+
     with open("./widgets/wmo-codes.json", "r") as file:
         data = json.load(file)
-        status = data[str(int(weather_code))]["day" if is_day else "night"]
-        return status
+        status = data[str(wmo_code)]["day" if is_day else "night"]["description"]
+        return {
+            "description": status,
+            "wmo_code": wmo_code, 
+            "is_day": int(is_day)
+        }
 
 def hours_ahead(start_time_str, hours=5):
-    start = datetime.strptime(start_time_str, "%-I:%M %p")
+    start = datetime.strptime(start_time_str, "%I:%M %p")
     results = []
     for i in range(1, hours + 1):
         new_time = start + timedelta(hours=i)
         results.append(new_time.strftime("%I %p").lstrip("0"))
-    
     return results
 
 async def fetch_info():
@@ -97,5 +102,6 @@ async def fetch_info():
     
 def fetch_icon(wmoCode, is_day):
     filename = str(wmoCode) + "-" + ("day" if is_day else "night") + ".bin"
+    print(filename)
     with open("./weather-icons-16x16/" + filename, "rb") as file:
         return file.read()

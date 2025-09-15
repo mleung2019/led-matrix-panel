@@ -13,12 +13,12 @@ def home():
 def get_weather():
     return asyncio.run(weather.fetch_info())
 
-@app.route("/weather/icon/<int:wmoCode>")
+@app.route("/weather/icons/<int:wmoCode>")
 def get_icon(wmoCode):
-    day_param = request.args.get("is_day", "true").lower()
-    is_day = True
+    day_param = request.args.get("is_day", 1).lower()
+    is_day = 1
     if day_param != "true":
-        is_day = False
+        is_day = 0
     return Response(
         weather.fetch_icon(wmoCode, is_day),
         mimetype="application/octet-stream"
@@ -36,4 +36,4 @@ def get_cover():
     )
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5000)

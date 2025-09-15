@@ -1,17 +1,8 @@
 #include <WiFi.h>
-#include <WiFiUdp.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
+
 #include "wifiClient.h"
-
-WiFiUDP udp;
-const int localPort = 5005;
-
-uint16_t displayFrame[PANEL_PIXELS];
-bool frameReady = false;
-
-uint16_t tempFrame[PANEL_PIXELS];
-uint32_t packetMask = 0;
-uint16_t currentFrameID = 0xFFFF;
 
 void connectWiFi(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
@@ -25,40 +16,33 @@ void connectWiFi(const char *ssid, const char *password) {
       WiFi.begin(ssid, password);
     }
   }
-  udp.begin(localPort);
-  Serial.print("Connected to WiFi, local port: ");
-  Serial.println(localPort);
+  Serial.println("Connected to WiFi");
 }
 
-void fetchGallery() {
-  int packetSize;
-  while ((packetSize = udp.parsePacket()) > 0) {
-    uint8_t packet[1300];
-    int len = udp.read(packet, 1300);
+void fetchWeather(WeatherData *weather) {
+  HTTPClient http;
 
-    uint16_t frameID = (packet[0] << 8) | packet[1];
-    uint8_t totalPackets = packet[2];
-    uint8_t packetIdx = packet[3];
+  http.begin("http://192.168.0.25:5000/weather");
 
-    // Reset if new frame
-    if (frameID != currentFrameID) {
-      packetMask = 0;
-      currentFrameID = frameID;
+  int httpCode = http.GET();
+  Serial.println(httpCode);
+  if (httpCode > 0) {
+    String payload = http.getString();
+  
+    StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+    if (!error) {
+      weather->city = doc["city"];
+      weather->time = doc["time_str"];
+      weather->currentTemp = doc["curr_temp"];
+      weather->highTemp = doc["high_temp"];
+      weather->lowTemp= doc["low_temp"];
+
+
+    } else {
     }
+  } else {
 
-    int payloadLen = len - 4;
-    int offset = packetIdx * PAYLOAD_SIZE;
-    if (offset + payloadLen <= FRAME_SIZE) {
-      memcpy(((uint8_t *)tempFrame) + offset, packet + 4, payloadLen);
-      packetMask |= (1UL << packetIdx);
-    }
-
-    uint32_t completeMask = (1UL << totalPackets) - 1;
-    if (packetMask == completeMask) {
-      memcpy(displayFrame, tempFrame, FRAME_SIZE);
-      packetMask = 0;
-      frameReady = true;
-    }
   }
+  http.end();
 }
-
