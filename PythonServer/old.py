@@ -3,7 +3,7 @@ import process
 
 app = Flask(__name__)
 
-gallery = process.parse_media()
+gallery = process.parse_gallery()
 index = 0
 
 @app.route("/")

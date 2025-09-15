@@ -1,14 +1,15 @@
 import socket
 import time
-import process
 import struct
+
+import process
 
 UDP_IP = "192.168.0.26"
 UDP_PORT = 5005
 
 PAYLOAD_SIZE = 1200
 
-gallery = process.parse_media()
+gallery = process.parse_gallery()
 print("Gallery finished processing")
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

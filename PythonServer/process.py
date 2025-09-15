@@ -1,7 +1,10 @@
+import requests
+from io import BytesIO
 from PIL import Image
 import cv2
-import os
+
 import struct
+import os
 import mimetypes
 
 class Media:
@@ -38,10 +41,10 @@ def resize_image(img):
     return img.resize(new_size), pan
 
 # Used by PIL for images
-def convert_frame(img, offset=(0, 0)):
+def convert_frame(img, offset=(0, 0), size=(PANEL_LENGTH, PANEL_LENGTH)):
     rgb_values = bytearray()
-    for y in range(offset[1], offset[1] + PANEL_LENGTH):
-        for x in range(offset[0], offset[0] + PANEL_LENGTH):
+    for y in range(offset[1], offset[1] + size[1]):
+        for x in range(offset[0], offset[0] + size[0]):
             r, g, b = img.getpixel((x, y))
             rgb_values.extend(rgb_to_rgb565(r, g, b))
     return bytes(rgb_values)
@@ -56,7 +59,20 @@ def convert_frame_cv2(bgr):
             rgb_values.extend(struct.pack("<H", pixel))
     return bytes(rgb_values)
 
-def parse_media():
+# URL to PIL img to bytes object
+def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH)):
+    if url == None:
+        return None
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        img_data = BytesIO(response.content)
+        pil_image = Image.open(img_data).convert("RGB").resize(size)
+        return convert_frame(pil_image, size=size)
+    else:
+        return None
+
+def parse_gallery():
     filenames = os.listdir("./gallery")
     gallery = []
 
@@ -130,6 +146,3 @@ def parse_media():
                 gallery.append(Media(frames, 100))
 
     return gallery
-
-
-            

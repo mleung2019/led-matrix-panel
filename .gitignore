@@ -1,3 +1,5 @@
 /PythonServer/__pycache__
 /PythonServer/widgets/__pycache__
 /PythonServer/.venv
+*.env
+*.DS_STORE
