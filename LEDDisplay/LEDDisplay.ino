@@ -22,7 +22,7 @@ const char *ssid = "x";
 const char *password = "x";
 
 // Widgets
-WeatherData *weather = nullptr;
+WeatherData weather{};
 
 void setup()
 {
@@ -57,9 +57,16 @@ void widgetControl(int widgetIdx)
 {
   // Weather
   if (widgetIdx == 0) {
-    fetchWeather(weather);
+    int result = fetchWeather(&weather);
+    Serial.println(result);
+    if (!result) {
+      display->drawRGBBitmap(
+        0, 0, 
+        weather.statusIcon, 
+        WEATHER_ICON_LEN, WEATHER_ICON_LEN
+      ); 
+    } 
 
-
-    delay(5000);
+    delay(10000);
   }
 }

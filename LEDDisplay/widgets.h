@@ -7,15 +7,17 @@
 #define WEATHER_ICON_SIZE WEATHER_ICON_LEN*WEATHER_ICON_LEN
 
 struct WeatherData {
+    // Cache
+    bool hasCache;
     // Location
-    String city;
-    String time;
+    char city[32];
+    char time[16];
     // Current temp
     int currentTemp;
     int highTemp;
     int lowTemp;
     // Status
-    String statusDesc;
+    char statusDesc[32];
     uint16_t statusIcon[WEATHER_ICON_SIZE];
 };
 

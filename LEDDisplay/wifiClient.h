@@ -9,6 +9,8 @@
 #define MAX_PACKETS 16
 
 void connectWiFi(const char *ssid, const char *password);
-void fetchWeather(WeatherData *weather);
+void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength);
+
+int fetchWeather(WeatherData *weather);
 
 #endif
