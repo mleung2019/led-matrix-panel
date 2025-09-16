@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define WEATHER_ICON_LEN 16
+#define WEATHER_ICON_LEN 24
 #define WEATHER_ICON_SIZE WEATHER_ICON_LEN*WEATHER_ICON_LEN
 
 struct WeatherData {

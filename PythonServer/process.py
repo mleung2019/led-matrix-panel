@@ -40,11 +40,28 @@ def resize_image(img):
 
     return img.resize(new_size), pan
 
+def crop_center(img, target_width, target_height):
+    width, height = img.size
+    left = (width - target_width) // 2
+    top = (height - target_height) // 2
+    right = left + target_width
+    bottom = top + target_height
+    return img.crop((left, top, right, bottom))
+
+def pad_to_size(img, target_size):
+    target_w, target_h = target_size
+    img = img.convert("RGBA")  # Ensure transparency is kept
+    canvas = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+    offset_x = (target_w - img.width) // 2
+    offset_y = (target_h - img.height) // 2
+    canvas.paste(img, (offset_x, offset_y), img)
+    return canvas
+
 # Used by PIL for images
-def convert_frame(img, offset=(0, 0), size=(PANEL_LENGTH, PANEL_LENGTH)):
+def convert_frame(img, offset=(0, 0), ):
     rgb_values = bytearray()
-    for y in range(offset[1], offset[1] + size[1]):
-        for x in range(offset[0], offset[0] + size[0]):
+    for y in range(offset[1], offset[1] + img.size[1]):
+        for x in range(offset[0], offset[0] + img.size[0]):
             r, g, b = img.getpixel((x, y))
             rgb_values.extend(rgb_to_rgb565(r, g, b))
     return bytes(rgb_values)
@@ -60,15 +77,27 @@ def convert_frame_cv2(bgr):
     return bytes(rgb_values)
 
 # URL to PIL img to bytes object
-def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH)):
+def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
     if url == None:
         return None
     
     response = requests.get(url)
     if response.status_code == 200:
         img_data = BytesIO(response.content)
-        pil_image = Image.open(img_data).convert("RGB").resize(size)
-        return convert_frame(pil_image, size=size)
+        img = Image.open(img_data).convert("RGBA")
+
+        if preserve_ratio:
+            longest_len = max(img.size)
+            print(longest_len)
+            img = pad_to_size(img, (longest_len, longest_len))
+
+        background = Image.new("RGBA", img.size, (0, 0, 0, 255))  # black bg
+        composite = Image.alpha_composite(background, img).resize(size)
+
+        # Convert back to RGB (drops alpha but keeps background filled)
+        pil_image = composite.convert("RGB")
+
+        return convert_frame(pil_image)
     else:
         return None
 

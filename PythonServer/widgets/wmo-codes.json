@@ -1,282 +1,282 @@
 {
-	"0":{
-		"day":{
-			"description":"Sunny",
-			"image":"http://openweathermap.org/img/wn/01d@2x.png"
-		},
-		"night":{
-			"description":"Clear",
-			"image":"http://openweathermap.org/img/wn/01n@2x.png"
-		}
-	},
-	"1":{
-		"day":{
-			"description":"Mainly Sunny",
-			"image":"http://openweathermap.org/img/wn/01d@2x.png"
-		},
-		"night":{
-			"description":"Mainly Clear",
-			"image":"http://openweathermap.org/img/wn/01n@2x.png"
-		}
-	},
-	"2":{
-		"day":{
-			"description":"Partly Cloudy",
-			"image":"http://openweathermap.org/img/wn/02d@2x.png"
-		},
-		"night":{
-			"description":"Partly Cloudy",
-			"image":"http://openweathermap.org/img/wn/02n@2x.png"
-		}
-	},
-	"3":{
-		"day":{
-			"description":"Cloudy",
-			"image":"http://openweathermap.org/img/wn/03d@2x.png"
-		},
-		"night":{
-			"description":"Cloudy",
-			"image":"http://openweathermap.org/img/wn/03n@2x.png"
-		}
-	},
-	"45":{
-		"day":{
-			"description":"Foggy",
-			"image":"http://openweathermap.org/img/wn/50d@2x.png"
-		},
-		"night":{
-			"description":"Foggy",
-			"image":"http://openweathermap.org/img/wn/50n@2x.png"
-		}
-	},
-	"48":{
-		"day":{
-			"description":"Rime Fog",
-			"image":"http://openweathermap.org/img/wn/50d@2x.png"
-		},
-		"night":{
-			"description":"Rime Fog",
-			"image":"http://openweathermap.org/img/wn/50n@2x.png"
-		}
-	},
-	"51":{
-		"day":{
-			"description":"Light Drizzle",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Light Drizzle",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"53":{
-		"day":{
-			"description":"Drizzle",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Drizzle",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"55":{
-		"day":{
-			"description":"Heavy Drizzle",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Heavy Drizzle",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"56":{
-		"day":{
-			"description":"Light Freezing Drizzle",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Light Freezing Drizzle",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"57":{
-		"day":{
-			"description":"Freezing Drizzle",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Freezing Drizzle",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"61":{
-		"day":{
-			"description":"Light Rain",
-			"image":"http://openweathermap.org/img/wn/10d@2x.png"
-		},
-		"night":{
-			"description":"Light Rain",
-			"image":"http://openweathermap.org/img/wn/10n@2x.png"
-		}
-	},
-	"63":{
-		"day":{
-			"description":"Rain",
-			"image":"http://openweathermap.org/img/wn/10d@2x.png"
-		},
-		"night":{
-			"description":"Rain",
-			"image":"http://openweathermap.org/img/wn/10n@2x.png"
-		}
-	},
-	"65":{
-		"day":{
-			"description":"Heavy Rain",
-			"image":"http://openweathermap.org/img/wn/10d@2x.png"
-		},
-		"night":{
-			"description":"Heavy Rain",
-			"image":"http://openweathermap.org/img/wn/10n@2x.png"
-		}
-	},
-	"66":{
-		"day":{
-			"description":"Light Freezing Rain",
-			"image":"http://openweathermap.org/img/wn/10d@2x.png"
-		},
-		"night":{
-			"description":"Light Freezing Rain",
-			"image":"http://openweathermap.org/img/wn/10n@2x.png"
-		}
-	},
-	"67":{
-		"day":{
-			"description":"Freezing Rain",
-			"image":"http://openweathermap.org/img/wn/10d@2x.png"
-		},
-		"night":{
-			"description":"Freezing Rain",
-			"image":"http://openweathermap.org/img/wn/10n@2x.png"
-		}
-	},
-	"71":{
-		"day":{
-			"description":"Light Snow",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Light Snow",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"73":{
-		"day":{
-			"description":"Snow",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Snow",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"75":{
-		"day":{
-			"description":"Heavy Snow",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Heavy Snow",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"77":{
-		"day":{
-			"description":"Snow Grains",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Snow Grains",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"80":{
-		"day":{
-			"description":"Light Showers",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Light Showers",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"81":{
-		"day":{
-			"description":"Showers",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Showers",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"82":{
-		"day":{
-			"description":"Heavy Showers",
-			"image":"http://openweathermap.org/img/wn/09d@2x.png"
-		},
-		"night":{
-			"description":"Heavy Showers",
-			"image":"http://openweathermap.org/img/wn/09n@2x.png"
-		}
-	},
-	"85":{
-		"day":{
-			"description":"Light Snow Showers",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Light Snow Showers",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"86":{
-		"day":{
-			"description":"Snow Showers",
-			"image":"http://openweathermap.org/img/wn/13d@2x.png"
-		},
-		"night":{
-			"description":"Snow Showers",
-			"image":"http://openweathermap.org/img/wn/13n@2x.png"
-		}
-	},
-	"95":{
-		"day":{
-			"description":"Thunderstorm",
-			"image":"http://openweathermap.org/img/wn/11d@2x.png"
-		},
-		"night":{
-			"description":"Thunderstorm",
-			"image":"http://openweathermap.org/img/wn/11n@2x.png"
-		}
-	},
-	"96":{
-		"day":{
-			"description":"Light Thunderstorms With Hail",
-			"image":"http://openweathermap.org/img/wn/11d@2x.png"
-		},
-		"night":{
-			"description":"Light Thunderstorms With Hail",
-			"image":"http://openweathermap.org/img/wn/11n@2x.png"
-		}
-	},
-	"99":{
-		"day":{
-			"description":"Thunderstorm With Hail",
-			"image":"http://openweathermap.org/img/wn/11d@2x.png"
-		},
-		"night":{
-			"description":"Thunderstorm With Hail",
-			"image":"http://openweathermap.org/img/wn/11n@2x.png"
-		}
-	}
+  "0": {
+    "day": {
+      "description": "Sunny",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/575900edccbc7def167f7874c02aeb0b.png"
+    },
+    "night": {
+      "description": "Clear",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/1200cde3569cf69bd80e1ddabc0f15cd.png"
+    }
+  },
+  "1": {
+    "day": {
+      "description": "Mainly Sunny",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/575900edccbc7def167f7874c02aeb0b.png"
+    },
+    "night": {
+      "description": "Mainly Clear",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/1200cde3569cf69bd80e1ddabc0f15cd.png"
+    }
+  },
+  "2": {
+    "day": {
+      "description": "Partly Cloudy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/67aaf9dbe30989c25cbde6c6ec099213.png"
+    },
+    "night": {
+      "description": "Partly Cloudy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/17cc1a8a95028b89ba6988ee47eeab29.png"
+    }
+  },
+  "3": {
+    "day": {
+      "description": "Cloudy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/66117fab0f288a2867b340fa2fcde31b.png"
+    },
+    "night": {
+      "description": "Cloudy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/66117fab0f288a2867b340fa2fcde31b.png"
+    }
+  },
+  "45": {
+    "day": {
+      "description": "Foggy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d35bb25d12281cd9ee5ce78a98cd2aa7.png"
+    },
+    "night": {
+      "description": "Foggy",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d35bb25d12281cd9ee5ce78a98cd2aa7.png"
+    }
+  },
+  "48": {
+    "day": {
+      "description": "Rime Fog",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d35bb25d12281cd9ee5ce78a98cd2aa7.png"
+    },
+    "night": {
+      "description": "Rime Fog",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d35bb25d12281cd9ee5ce78a98cd2aa7.png"
+    }
+  },
+  "51": {
+    "day": {
+      "description": "Light Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/a55fef55bbeb0762a8dd329b4b8ad342.png"
+    },
+    "night": {
+      "description": "Light Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d4b6596291c114305b64056bd92ccee3.png"
+    }
+  },
+  "53": {
+    "day": {
+      "description": "Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/a55fef55bbeb0762a8dd329b4b8ad342.png"
+    },
+    "night": {
+      "description": "Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d4b6596291c114305b64056bd92ccee3.png"
+    }
+  },
+  "55": {
+    "day": {
+      "description": "Heavy Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/a55fef55bbeb0762a8dd329b4b8ad342.png"
+    },
+    "night": {
+      "description": "Heavy Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d4b6596291c114305b64056bd92ccee3.png"
+    }
+  },
+  "56": {
+    "day": {
+      "description": "Light Freezing Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/a55fef55bbeb0762a8dd329b4b8ad342.png"
+    },
+    "night": {
+      "description": "Light Freezing Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d4b6596291c114305b64056bd92ccee3.png"
+    }
+  },
+  "57": {
+    "day": {
+      "description": "Freezing Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/a55fef55bbeb0762a8dd329b4b8ad342.png"
+    },
+    "night": {
+      "description": "Freezing Drizzle",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/d4b6596291c114305b64056bd92ccee3.png"
+    }
+  },
+  "61": {
+    "day": {
+      "description": "Light Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    },
+    "night": {
+      "description": "Light Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    }
+  },
+  "63": {
+    "day": {
+      "description": "Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    },
+    "night": {
+      "description": "Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    }
+  },
+  "65": {
+    "day": {
+      "description": "Heavy Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/451d37e6cea3af4a568110863a1adcf7.png"
+    },
+    "night": {
+      "description": "Heavy Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/451d37e6cea3af4a568110863a1adcf7.png"
+    }
+  },
+  "66": {
+    "day": {
+      "description": "Light Freezing Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/9189cb49e806d1ebfeed24f33367143c.png"
+    },
+    "night": {
+      "description": "Light Freezing Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/9189cb49e806d1ebfeed24f33367143c.png"
+    }
+  },
+  "67": {
+    "day": {
+      "description": "Freezing Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/9189cb49e806d1ebfeed24f33367143c.png"
+    },
+    "night": {
+      "description": "Freezing Rain",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/9189cb49e806d1ebfeed24f33367143c.png"
+    }
+  },
+  "71": {
+    "day": {
+      "description": "Light Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    },
+    "night": {
+      "description": "Light Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    }
+  },
+  "73": {
+    "day": {
+      "description": "Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    },
+    "night": {
+      "description": "Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    }
+  },
+  "75": {
+    "day": {
+      "description": "Heavy Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/e95fb90fc5a4aac111be78770921beb1.png"
+    },
+    "night": {
+      "description": "Heavy Snow",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/e95fb90fc5a4aac111be78770921beb1.png"
+    }
+  },
+  "77": {
+    "day": {
+      "description": "Snow Grains",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/e95fb90fc5a4aac111be78770921beb1.png"
+    },
+    "night": {
+      "description": "Snow Grains",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/e95fb90fc5a4aac111be78770921beb1.png"
+    }
+  },
+  "80": {
+    "day": {
+      "description": "Light Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    },
+    "night": {
+      "description": "Light Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    }
+  },
+  "81": {
+    "day": {
+      "description": "Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    },
+    "night": {
+      "description": "Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    }
+  },
+  "82": {
+    "day": {
+      "description": "Heavy Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    },
+    "night": {
+      "description": "Heavy Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/4417bf88c7bbcd8e24fb78ee6479b362.png"
+    }
+  },
+  "85": {
+    "day": {
+      "description": "Light Snow Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    },
+    "night": {
+      "description": "Light Snow Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    }
+  },
+  "86": {
+    "day": {
+      "description": "Snow Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    },
+    "night": {
+      "description": "Snow Showers",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/00171e3b54b97dee8c1a2f6a62272640.png"
+    }
+  },
+  "95": {
+    "day": {
+      "description": "Thunderstorm",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    },
+    "night": {
+      "description": "Thunderstorm",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    }
+  },
+  "96": {
+    "day": {
+      "description": "Light Thunderstorms With Hail",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    },
+    "night": {
+      "description": "Light Thunderstorms With Hail",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    }
+  },
+  "99": {
+    "day": {
+      "description": "Thunderstorm With Hail",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    },
+    "night": {
+      "description": "Thunderstorm With Hail",
+      "image": "https://help.apple.com/assets/67EAFA445A9CF2743B0E7315/67EAFA489E4549D0950763E3/en_US/efffb1e26f6de5bf5c8adbd872a2933a.png"
+    }
+  }
 }

@@ -15,12 +15,8 @@ def get_status(weather_code, is_day):
 
     with open("./widgets/wmo-codes.json", "r") as file:
         data = json.load(file)
-        status = data[str(wmo_code)]["day" if is_day else "night"]["description"]
-        return {
-            "description": status,
-            "wmo_code": wmo_code, 
-            "is_day": int(is_day)
-        }
+        status = data[str(wmo_code)]["day" if is_day else "night"]
+        return status["description"]
 
 def hours_ahead(start_time_str, hours=5):
     start = datetime.strptime(start_time_str, "%I:%M %p")
@@ -30,7 +26,11 @@ def hours_ahead(start_time_str, hours=5):
         results.append(new_time.strftime("%I %p").lstrip("0"))
     return results
 
+current_icon = None
+
 async def fetch_info():
+    global current_icon
+
     # Time
     now = datetime.now()
     time_str = now.strftime("%-I:%M %p")
@@ -88,20 +88,29 @@ async def fetch_info():
         for t, temp, status in zip(time_strs, temps, statuses)
     ]
 
+    icon_tuple = (current_weather_code, current_is_day)
+    needs_icon = False
+    if icon_tuple != current_icon:
+        current_icon = icon_tuple
+        needs_icon = True
+
     data = {
         "time_str": time_str,
-        "city": city,
+        "city": city[:20],
         "curr_temp": round(current_temperature_2m),
         "high_temp": round(daily_temperature_2m_max[0]),
         "low_temp": round(daily_temperature_2m_min[0]),
         "status": get_status(current_weather_code, current_is_day),
-        "five_hr_log": five_hr_log
+        "five_hr_log": five_hr_log,
+        "needs_icon": needs_icon
     }
-
     return data
     
-def fetch_icon(wmoCode, is_day):
-    filename = str(wmoCode) + "-" + ("day" if is_day else "night") + ".bin"
+def fetch_icon():
+    global current_icon
+    
+    wmo_code, is_day = current_icon
+    filename = str(int(3)) + "-" + ("day" if 1 else "night") + ".bin"
     print(filename)
-    with open("./weather-icons-16x16/" + filename, "rb") as file:
+    with open("./weather-icons-24x24/" + filename, "rb") as file:
         return file.read()

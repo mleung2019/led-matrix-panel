@@ -45,6 +45,7 @@ void setup()
   display->begin();  // Setup display with pins as pre-defined in the library
   display->setBrightness8(50);
   display->clearScreen();
+  display->cp437(true);
 }
 
 void loop()
@@ -58,15 +59,30 @@ void widgetControl(int widgetIdx)
   // Weather
   if (widgetIdx == 0) {
     int result = fetchWeather(&weather);
-    Serial.println(result);
     if (!result) {
+      display->clearScreen();
+      display->setCursor(0, 0);
+      display->println(weather.city);
+      // display->println(weather.time);
+      display->println(weather.statusDesc);
+
+      display->print(weather.currentTemp);
+      display->write(0xF8);
+      display->println("F");
+
+      display->printf("H:%d", weather.highTemp);
+      display->write(0xF8);
+      display->printf("F\nL:%d", weather.lowTemp);
+      display->write(0xF8);
+      display->print("F");
+
       display->drawRGBBitmap(
-        0, 0, 
+        37, 15, 
         weather.statusIcon, 
         WEATHER_ICON_LEN, WEATHER_ICON_LEN
       ); 
     } 
 
-    delay(10000);
+    delay(5000);
   }
 }

@@ -3,3 +3,5 @@
 /PythonServer/.venv
 *.env
 *.DS_STORE
+*.cache
+

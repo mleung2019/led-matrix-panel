@@ -19,8 +19,6 @@ void connectWiFi(const char *ssid, const char *password) {
   Serial.println("Connected to WiFi");
 }
 
-
-
 int fetchWeather(WeatherData *weather) {
   HTTPClient http;
   http.begin("http://192.168.0.14:5001/weather");
