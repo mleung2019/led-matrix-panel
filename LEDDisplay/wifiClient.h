@@ -11,4 +11,7 @@ void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength);
 int fetchWeather(WeatherData *weather);
 void fetchWeatherIcon(WeatherData *weather);
 
+int fetchSpotify(SpotifyData *spotify);
+void fetchSpotifyCover(SpotifyData *spotify);
+
 #endif

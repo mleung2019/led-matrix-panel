@@ -25,7 +25,7 @@ int fetchWeather(WeatherData *weather) {
 
   int result = 0;
   int httpCode = http.GET();
-  Serial.println(httpCode);
+  Serial.printf("Weather: %d\n", httpCode);
   if (httpCode > 0) {
     String payload = http.getString();
 
@@ -51,11 +51,6 @@ int fetchWeather(WeatherData *weather) {
 
       strncpy(weather->statusDesc.msg, doc["status"], sizeof(weather->statusDesc.msg));
 
-      bool needsIcon = doc["needs_icon"];
-      if (needsIcon) {
-        fetchWeatherIcon(weather);
-      }
-
       memset(weather->forecastStr.msg, 0, SCROLLER_SIZE);
       for (int i = 0; i < 5; i++) {
         const char *timeStr = doc["five_hr_log"][i]["time_str"].as<const char *>();
@@ -66,6 +61,11 @@ int fetchWeather(WeatherData *weather) {
           snprintf(weather->forecastStr.msg + used, SCROLLER_SIZE - used,
           "%s:%d%c ", timeStr, temp, DEGREE_SYMBOL);
         }
+      }
+
+      bool needsIcon = doc["needs_icon"];
+      if (needsIcon) {
+        fetchWeatherIcon(weather);
       }
     }
     // Parsing problem
@@ -87,6 +87,58 @@ void fetchWeatherIcon(WeatherData *weather) {
     "http://192.168.0.14:5001/weather/icon", 
     weather->statusIcon,
     WEATHER_ICON_LENGTH
+  );
+}
+
+int fetchSpotify(SpotifyData *spotify) {
+HTTPClient http;
+  http.begin("http://192.168.0.14:5001/spotify");
+
+  int result = 0;
+  int httpCode = http.GET();
+  Serial.printf("Spotify: %d\n", httpCode);
+  if (httpCode > 0) {
+    String payload = http.getString();
+
+    StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      memset(spotify->trackInfo.msg, 0, SCROLLER_SIZE);
+
+      const char *trackStr = doc["track_name"].as<const char *>();
+      const char *artistStr = doc["artist_name"].as<const char *>();
+      sprintf(
+        spotify->trackInfo.msg, 
+        "%s - %s", 
+        artistStr,
+        trackStr
+      );
+
+      bool needsCover = doc["needs_cover"];
+      if (needsCover) {
+        fetchSpotifyCover(spotify);
+      }
+    }
+    // Parsing problem
+    else {
+      result = 1;
+    }
+  }
+  // Server problem
+  else {
+    result = 2;
+  }
+  // Success
+  http.end();
+  return result;
+}
+
+void fetchSpotifyCover(SpotifyData *spotify) {
+  writeURLtoBitmap(
+    "http://192.168.0.14:5001/spotify/cover", 
+    spotify->cover,
+    PANEL_LENGTH
   );
 }
 

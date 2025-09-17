@@ -59,5 +59,5 @@ void setup()
 
 void loop()
 {
-  widgetControl(display, &widget, WEATHER);
+  widgetControl(display, &widget, SPOTIFY);
 }

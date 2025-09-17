@@ -44,16 +44,18 @@ def fetch_info():
     progress_ms = current["progress_ms"]
     duration_ms = current["item"]["duration_ms"]
 
+    is_local = current["item"]["is_local"]
+
     needs_cover = False
 
-    if cover_url != current_cover:
+    if cover_url != current_cover and not is_local:
         current_cover = cover_url
         needs_cover = True
 
     # Send relevant info
     data = {
-        "track_name": track_name,
-        "artist_name": artist_name,
+        "track_name": track_name[:80],
+        "artist_name": artist_name[:40],
         "needs_cover": needs_cover,
         "progress_ms": progress_ms,
         "duration_ms": duration_ms

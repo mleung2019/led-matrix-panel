@@ -21,7 +21,7 @@ struct Scroller {
     // Position
     int16_t x;
     int y;
-    uint16_t color;
+    uint16_t color = 0xFFFF;
     // Timing
     bool active = false;
     unsigned long lastUpdate = 0;
@@ -42,9 +42,8 @@ struct WeatherData {
 };
 
 struct SpotifyData {
-    // String artistName;
-    // String trackName;
     uint16_t cover[PANEL_PIXELS];
+    Scroller trackInfo;
 };
 
 struct GalleryData {
@@ -73,6 +72,7 @@ bool needScrollerUpdate(Scroller *scroller);
 
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type);
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);
+void drawSpotify(MatrixPanel_I2S_DMA *display, Widget *widget);
 
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller);
 void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);

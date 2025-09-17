@@ -24,13 +24,22 @@ bool needScrollerUpdate(Scroller *scroller) {
 
 void fetchTask(void *parameter) {
   Widget *widget = (Widget *)parameter;
+  int result = 0;
   for (;;) {
     switch (widget->type) {
       case WEATHER:
-        int result = fetchWeather(&widget->weather);
+        result = fetchWeather(&widget->weather);
         // Force fetch weather icon on startup
         if (!result && !widget->isInit) {
           fetchWeatherIcon(&widget->weather);
+          widget->isInit = true;
+        }
+        break;
+      case SPOTIFY:
+        result = fetchSpotify(&widget->spotify);
+        // Force fetch album cover on startup
+        if (!result && !widget->isInit) {
+          fetchSpotifyCover(&widget->spotify);
           widget->isInit = true;
         }
         break;
@@ -53,9 +62,11 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
   // Update frame
   switch (widget->type) {
     case WEATHER:
-      // Fetch new scroller info
       needScrollerUpdate(&widget->weather.statusDesc);
       needScrollerUpdate(&widget->weather.forecastStr);
+      break;
+    case SPOTIFY:
+      needScrollerUpdate(&widget->spotify.trackInfo);
       break;
   }
 
@@ -68,6 +79,10 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       scrollerControl(display, &widget->weather.statusDesc);
       scrollerControl(display, &widget->weather.forecastStr);
     break;
+    case SPOTIFY:
+      drawSpotify(display, widget);
+      display->fillRect(0, 55, 64, 9, 0x0000);
+      scrollerControl(display, &widget->spotify.trackInfo);
   }
 
   display->flipDMABuffer();
@@ -103,8 +118,24 @@ void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget) {
   weather->forecastStr.y = 56;
 }
 
+void drawSpotify(MatrixPanel_I2S_DMA *display, Widget *widget) {
+  SpotifyData *spotify = &widget->spotify;
+
+  // COVER
+  display->drawRGBBitmap(
+    0, 0, 
+    spotify->cover, 
+    PANEL_LENGTH, PANEL_LENGTH
+  ); 
+
+  // TRACK INFO
+  scrollerResize(display, &spotify->trackInfo);
+  spotify->trackInfo.y = 56;
+}
+
 // If active, scroll msg. If inactive, center msg.
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
+  display->setTextColor(scroller->color);
   if (scroller->active) {
     int16_t x1, y1;
     uint16_t w, h;
@@ -119,6 +150,7 @@ void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
   } else {
     drawCenteredText(display, scroller->msg, scroller->y);
   }
+  display->setTextColor(0xFFFF);
 }
 
 // When scroller info changes, we need to determine if scrolling should
