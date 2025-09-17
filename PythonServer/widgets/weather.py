@@ -19,11 +19,11 @@ def get_status(weather_code, is_day):
         return status["description"]
 
 def hours_ahead(start_time_str, hours=5):
-    start = datetime.strptime(start_time_str, "%I:%M %p")
+    start = datetime.strptime(start_time_str, "%I:%M%p")
     results = []
     for i in range(1, hours + 1):
         new_time = start + timedelta(hours=i)
-        results.append(new_time.strftime("%I %p").lstrip("0"))
+        results.append(new_time.strftime("%I%p").lstrip("0"))
     return results
 
 current_icon = None
@@ -33,7 +33,7 @@ async def fetch_info():
 
     # Time
     now = datetime.now()
-    time_str = now.strftime("%-I:%M %p")
+    time_str = now.strftime("%-I:%M%p")
 
     # Location
     lat, lon, city, timezone = get_coords()
@@ -87,7 +87,8 @@ async def fetch_info():
         {"time_str": t, "temp": temp, "status": status} 
         for t, temp, status in zip(time_strs, temps, statuses)
     ]
-
+    # current_weather_code = 95
+    # current_is_day = 1
     icon_tuple = (current_weather_code, current_is_day)
     needs_icon = False
     if icon_tuple != current_icon:
@@ -95,7 +96,7 @@ async def fetch_info():
         needs_icon = True
 
     data = {
-        "time_str": time_str,
+        "time_str": time_str[:-2],
         "city": city[:20],
         "curr_temp": round(current_temperature_2m),
         "high_temp": round(daily_temperature_2m_max[0]),
@@ -108,9 +109,7 @@ async def fetch_info():
     
 def fetch_icon():
     global current_icon
-    
     wmo_code, is_day = current_icon
-    filename = str(int(3)) + "-" + ("day" if 1 else "night") + ".bin"
-    print(filename)
+    filename = str(int(wmo_code)) + "-" + ("day" if is_day else "night") + ".bin"
     with open("./weather-icons-24x24/" + filename, "rb") as file:
         return file.read()

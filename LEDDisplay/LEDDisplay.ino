@@ -17,12 +17,12 @@ HUB75_I2S_CFG mxconfig(
   PANEL_CHAIN    // Chain length
 );
 
+// Widget
+Widget widget;
+
 // WiFi
 const char *ssid = "x";
 const char *password = "x";
-
-// Widgets
-WeatherData weather{};
 
 void setup()
 {
@@ -45,44 +45,48 @@ void setup()
   display->begin();  // Setup display with pins as pre-defined in the library
   display->setBrightness8(50);
   display->clearScreen();
+
   display->cp437(true);
+  display->setTextWrap(false);
 }
 
 void loop()
 {
-  widgetControl(0);
+  widgetControl(display, &widget, WEATHER);
 }
 
-// TODO: make delay non-blocking
-void widgetControl(int widgetIdx)
-{
-  // Weather
-  if (widgetIdx == 0) {
-    int result = fetchWeather(&weather);
-    if (!result) {
-      display->clearScreen();
-      display->setCursor(0, 0);
-      display->println(weather.city);
-      // display->println(weather.time);
-      display->println(weather.statusDesc);
+// void widgetControl(int widgetIdx)
+// {
+//   // Weather
+//   if (widgetIdx == WidgetType.WEATHER_WIDGET) {
+    
+//     int result = fetchWeather(&widget);
 
-      display->print(weather.currentTemp);
-      display->write(0xF8);
-      display->println("F");
+//     // Refresh
+//     if (!result) {
+//       display->clearScreen();
+//       display->setCursor(0, 0);
 
-      display->printf("H:%d", weather.highTemp);
-      display->write(0xF8);
-      display->printf("F\nL:%d", weather.lowTemp);
-      display->write(0xF8);
-      display->print("F");
+//       drawCenteredText(display, weather.city, 0);
+//       display->println();
 
-      display->drawRGBBitmap(
-        37, 15, 
-        weather.statusIcon, 
-        WEATHER_ICON_LEN, WEATHER_ICON_LEN
-      ); 
-    } 
+//       display->println(weather.statusDesc);
 
-    delay(5000);
-  }
-}
+//       display->printf("%d", weather.currentTemp);
+//       display->write(0xF8);
+
+//       display->printf("\nH:%d", weather.highTemp);
+//       display->write(0xF8);
+      
+//       display->printf("\nL:%d", weather.lowTemp);
+//       display->write(0xF8);
+
+
+//       display->drawRGBBitmap(
+//         37, 16, 
+//         weather.statusIcon, 
+//         WEATHER_ICON_LEN, WEATHER_ICON_LEN
+//       ); 
+//     }
+//   }
+// }

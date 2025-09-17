@@ -43,13 +43,8 @@ int fetchWeather(WeatherData *weather) {
       strncpy(weather->statusDesc, doc["status"], sizeof(weather->statusDesc));
 
       bool needsIcon = doc["needs_icon"];
-      if (needsIcon || !weather->hasCache) {
-        weather->hasCache = true;
-        writeURLtoBitmap(
-          "http://192.168.0.14:5001/weather/icon", 
-          weather->statusIcon, 
-          WEATHER_ICON_LEN
-        );
+      if (needsIcon) {
+        fetchWeatherIcon(weather);
       }
     }
     // Parsing problem
@@ -64,6 +59,14 @@ int fetchWeather(WeatherData *weather) {
   // Success
   http.end();
   return result;
+}
+
+void fetchWeatherIcon(WeatherData *weather) {
+  writeURLtoBitmap(
+    "http://192.168.0.14:5001/weather/icon", 
+    weather->statusIcon,
+    WEATHER_ICON_LEN
+  );
 }
 
 void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength) {
