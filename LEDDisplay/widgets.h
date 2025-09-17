@@ -3,7 +3,8 @@
 
 #include "ESP32-HUB75-MatrixPanel-I2S-DMA.h"
 
-#define PANEL_PIXELS 64*64
+#define PANEL_LENGTH 64
+#define PANEL_PIXELS PANEL_LENGTH*PANEL_LENGTH
 #define WEATHER_ICON_LEN 24
 #define WEATHER_ICON_SIZE WEATHER_ICON_LEN*WEATHER_ICON_LEN
 #define DEGREE_SYMBOL 0xF8
@@ -23,8 +24,8 @@ struct Scroller {
     uint16_t color;
     // Timing
     bool active = false;
-    unsigned long lastMove = 0;
-    int updateInterval = 30;
+    unsigned long lastUpdate = 0;
+    unsigned long updateInterval = 30;
 };
 
 struct WeatherData {
@@ -36,7 +37,7 @@ struct WeatherData {
     int highTemp;
     int lowTemp;
     // Status
-    char statusDesc[32];
+    Scroller statusDesc;
     uint16_t statusIcon[WEATHER_ICON_SIZE];
 };
 
@@ -54,26 +55,27 @@ struct GalleryData {
 
 struct Widget {
     WidgetType type;
-
     // Cache and timing variables
     bool isInit = false;
     unsigned long lastUpdate = 0;
     unsigned long updateInterval = 5000;
-
-    union {
-        WeatherData weather;
-        SpotifyData spotify;
-        GalleryData gallery;
-    } data;
+    // Data
+    WeatherData weather;
+    SpotifyData spotify;
+    GalleryData gallery;
 };
 
-/* ----------------------- WIDGET CONTROL ----------------------- */
-bool needsUpdate(Widget *widget);
+/* ----------------------- WIDGET/SCROLLER CONTROL ----------------------- */
+bool needWidgetUpdate(Widget *widget);
+bool needScrollerUpdate(Scroller *scroller);
+
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type);
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);
 
+void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller);
+void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);
+
 /* ----------------------- ADAFRUIT GFX HELPER FUNCTIONS ----------------------- */
-bool isTooLong(MatrixPanel_I2S_DMA *display, const char *msg);
 void drawCenteredText(
   MatrixPanel_I2S_DMA *display, 
   const char* msg, int y,

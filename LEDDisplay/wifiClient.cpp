@@ -40,7 +40,7 @@ int fetchWeather(WeatherData *weather) {
       weather->highTemp = doc["high_temp"];
       weather->lowTemp = doc["low_temp"];
 
-      strncpy(weather->statusDesc, doc["status"], sizeof(weather->statusDesc));
+      strncpy(weather->statusDesc.msg, doc["status"], sizeof(weather->statusDesc.msg));
 
       bool needsIcon = doc["needs_icon"];
       if (needsIcon) {

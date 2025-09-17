@@ -54,39 +54,3 @@ void loop()
 {
   widgetControl(display, &widget, WEATHER);
 }
-
-// void widgetControl(int widgetIdx)
-// {
-//   // Weather
-//   if (widgetIdx == WidgetType.WEATHER_WIDGET) {
-    
-//     int result = fetchWeather(&widget);
-
-//     // Refresh
-//     if (!result) {
-//       display->clearScreen();
-//       display->setCursor(0, 0);
-
-//       drawCenteredText(display, weather.city, 0);
-//       display->println();
-
-//       display->println(weather.statusDesc);
-
-//       display->printf("%d", weather.currentTemp);
-//       display->write(0xF8);
-
-//       display->printf("\nH:%d", weather.highTemp);
-//       display->write(0xF8);
-      
-//       display->printf("\nL:%d", weather.lowTemp);
-//       display->write(0xF8);
-
-
-//       display->drawRGBBitmap(
-//         37, 16, 
-//         weather.statusIcon, 
-//         WEATHER_ICON_LEN, WEATHER_ICON_LEN
-//       ); 
-//     }
-//   }
-// }
