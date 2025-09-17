@@ -1,6 +1,5 @@
-#include "wifiClient.h"
-
 #include "widgets.h"
+#include "wifiClient.h"
 
 // Determine whether widget should ping the server
 bool needWidgetUpdate(Widget *widget) {
@@ -23,27 +22,40 @@ bool needScrollerUpdate(Scroller *scroller) {
   return false;
 }
 
+void fetchTask(void *parameter) {
+  Widget *widget = (Widget *)parameter;
+  for (;;) {
+    switch (widget->type) {
+      case WEATHER:
+        int result = fetchWeather(&widget->weather);
+        // Force fetch weather icon on startup
+        if (!result && !widget->isInit) {
+          fetchWeatherIcon(&widget->weather);
+          widget->isInit = true;
+        }
+        break;
+    }
+    vTaskDelay(pdMS_TO_TICKS(widget->updateInterval));
+  }
+}
+
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type) {
   // Handle widget change
-  if (widget->type != type) {
+  if (widget->type != type || !widget->isInit) {
     widget->isInit = false;
     widget->type = type;
+    switch (widget->type) {
+      case WEATHER: widget->updateInterval = 5000; break;
+      case SPOTIFY: widget->updateInterval = 2500; break;
+    }
   }
 
   // Update frame
   switch (widget->type) {
     case WEATHER:
-      // Fetch new widget info
-      if (needWidgetUpdate(widget)) {
-        int result = fetchWeather(&widget->weather);
-        // Force fetch weather icon on startup
-        if (!widget->isInit) {
-          fetchWeatherIcon(&widget->weather);
-          widget->isInit = true;
-        }
-      }
       // Fetch new scroller info
       needScrollerUpdate(&widget->weather.statusDesc);
+      needScrollerUpdate(&widget->weather.forecastStr);
       break;
   }
 
@@ -54,6 +66,7 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
     case WEATHER:
       drawWeather(display, widget);
       scrollerControl(display, &widget->weather.statusDesc);
+      scrollerControl(display, &widget->weather.forecastStr);
     break;
   }
 
@@ -64,41 +77,33 @@ void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget) {
   WeatherData *weather = &widget->weather;
   
   // CITY
-  drawCenteredText(display, weather->city, 0);
+  drawCenteredText(display, weather->city, 1);
   display->println();
 
   // STATUS DESCRIPTION
   scrollerResize(display, &weather->statusDesc);
-  weather->statusDesc.y = 8;
+  weather->statusDesc.y = 11;
   
-  // CURRENT TEMPERATURE
-  char tempBuffer[16] = {0};
-  sprintf(tempBuffer, "%d%c", weather->currentTemp, 0xF8);
-  // if (strlen(tempBuffer) != 4) {
-  //   display->setTextSize(2);
-  //   drawCenteredText(display, tempBuffer, 21, 42);
-  //   display->setTextSize(1);
-  // } else {
-  drawCenteredText(display, weather->time, 25-5, 42);
-  drawCenteredText(display, tempBuffer, 25+4, 42);
-  // }
+  // TIME AND CURRENT TEMPERATURE
+  drawCenteredText(display, weather->time, 23, 38);
+  drawCenteredText(display, weather->currentTemp, 34, 38);
 
   // HIGH AND LOW TEMP
-  sprintf(
-    tempBuffer, "H:%d%cL:%d%c",
-    weather->highTemp, 0xF8,
-    weather->lowTemp, 0xF8
-  );
-  drawCenteredText(display, tempBuffer, 41);
+  drawCenteredText(display, weather->hiloTemp, 46);
 
   // STATUS ICON
   display->drawRGBBitmap(
-    38, 16, 
+    36, 20, 
     weather->statusIcon, 
     WEATHER_ICON_LEN, WEATHER_ICON_LEN
   ); 
+
+  // 5 HOUR FORECAST
+  scrollerResize(display, &weather->forecastStr);
+  weather->forecastStr.y = 56;
 }
 
+// If active, scroll msg. If inactive, center msg.
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
   if (scroller->active) {
     int16_t x1, y1;

@@ -1,7 +1,4 @@
-#include "ESP32-HUB75-MatrixPanel-I2S-DMA.h"
-
 #include "wifiClient.h"
-#include "widgets.h"
 
 /*--------------------- MATRIX PANEL CONFIG -------------------------*/
 #define PANEL_RES_X 64      // Number of pixels wide of each INDIVIDUAL panel module. 
@@ -48,6 +45,15 @@ void setup()
 
   display->cp437(true);
   display->setTextWrap(false);
+
+  xTaskCreate(
+    fetchTask,
+    "FetchTask",
+    4096,
+    (void *)&widget,
+    1,     
+    nullptr
+  );
 }
 
 void loop()

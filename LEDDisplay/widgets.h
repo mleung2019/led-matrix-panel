@@ -3,11 +3,11 @@
 
 #include "ESP32-HUB75-MatrixPanel-I2S-DMA.h"
 
+#define SCROLLER_SIZE 128
 #define PANEL_LENGTH 64
 #define PANEL_PIXELS PANEL_LENGTH*PANEL_LENGTH
 #define WEATHER_ICON_LEN 24
 #define WEATHER_ICON_SIZE WEATHER_ICON_LEN*WEATHER_ICON_LEN
-#define DEGREE_SYMBOL 0xF8
 
 /* ----------------------- ENUMS/STRUCTS ----------------------- */
 enum WidgetType {
@@ -17,7 +17,7 @@ enum WidgetType {
 };
 
 struct Scroller {
-    char msg[128] = {};
+    char msg[SCROLLER_SIZE] = {};
     // Position
     int16_t x;
     int y;
@@ -32,13 +32,13 @@ struct WeatherData {
     // Location
     char city[32];
     char time[16];
-    // Current temp
-    int currentTemp;
-    int highTemp;
-    int lowTemp;
+    // Temperature
+    char currentTemp[8];
+    char hiloTemp[16];
     // Status
-    Scroller statusDesc;
     uint16_t statusIcon[WEATHER_ICON_SIZE];
+    Scroller statusDesc;
+    Scroller forecastStr;
 };
 
 struct SpotifyData {
@@ -64,6 +64,9 @@ struct Widget {
     SpotifyData spotify;
     GalleryData gallery;
 };
+
+/* ----------------------- FETCHING FROM SERVER ----------------------- */
+void fetchTask(void *parameter);
 
 /* ----------------------- WIDGET/SCROLLER CONTROL ----------------------- */
 bool needWidgetUpdate(Widget *widget);

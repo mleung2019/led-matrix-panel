@@ -87,7 +87,7 @@ async def fetch_info():
         {"time_str": t, "temp": temp, "status": status} 
         for t, temp, status in zip(time_strs, temps, statuses)
     ]
-    current_weather_code = 56
+    # current_weather_code = 3
     # current_is_day = 1
     icon_tuple = (current_weather_code, current_is_day)
     needs_icon = False

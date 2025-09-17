@@ -33,18 +33,39 @@ int fetchWeather(WeatherData *weather) {
     DeserializationError error = deserializeJson(doc, payload);
 
     if (!error) {
+      // TODO: unsafe if city name is too long
       strncpy(weather->city, doc["city"], sizeof(weather->city));
       strncpy(weather->time, doc["time_str"], sizeof(weather->time));
 
-      weather->currentTemp = doc["curr_temp"];
-      weather->highTemp = doc["high_temp"];
-      weather->lowTemp = doc["low_temp"];
+      sprintf(
+        weather->currentTemp, 
+        "%d%c", 
+        (int) doc["curr_temp"],
+        DEGREE_SYMBOL
+      );
+      sprintf(
+        weather->hiloTemp, "H:%d%cL:%d%c",
+        (int) doc["high_temp"], DEGREE_SYMBOL,
+        (int) doc["low_temp"], DEGREE_SYMBOL
+      );
 
       strncpy(weather->statusDesc.msg, doc["status"], sizeof(weather->statusDesc.msg));
 
       bool needsIcon = doc["needs_icon"];
       if (needsIcon) {
         fetchWeatherIcon(weather);
+      }
+
+      memset(weather->forecastStr.msg, 0, SCROLLER_SIZE);
+      for (int i = 0; i < 5; i++) {
+        const char *timeStr = doc["five_hr_log"][i]["time_str"].as<const char *>();
+        int temp = doc["five_hr_log"][i]["temp"];
+
+        size_t used = strlen(weather->forecastStr.msg);
+        if (used < SCROLLER_SIZE - 1) {
+          snprintf(weather->forecastStr.msg + used, SCROLLER_SIZE - used,
+          "%s:%d%c ", timeStr, temp, DEGREE_SYMBOL);
+        }
       }
     }
     // Parsing problem
