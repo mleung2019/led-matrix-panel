@@ -95,7 +95,7 @@ void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget) {
   display->drawRGBBitmap(
     36, 20, 
     weather->statusIcon, 
-    WEATHER_ICON_LEN, WEATHER_ICON_LEN
+    WEATHER_ICON_LENGTH, WEATHER_ICON_LENGTH
   ); 
 
   // 5 HOUR FORECAST

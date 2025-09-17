@@ -6,8 +6,8 @@
 #define SCROLLER_SIZE 128
 #define PANEL_LENGTH 64
 #define PANEL_PIXELS PANEL_LENGTH*PANEL_LENGTH
-#define WEATHER_ICON_LEN 24
-#define WEATHER_ICON_SIZE WEATHER_ICON_LEN*WEATHER_ICON_LEN
+#define WEATHER_ICON_LENGTH 24
+#define WEATHER_ICON_PIXELS WEATHER_ICON_LENGTH*WEATHER_ICON_LENGTH
 
 /* ----------------------- ENUMS/STRUCTS ----------------------- */
 enum WidgetType {
@@ -36,7 +36,7 @@ struct WeatherData {
     char currentTemp[8];
     char hiloTemp[16];
     // Status
-    uint16_t statusIcon[WEATHER_ICON_SIZE];
+    uint16_t statusIcon[WEATHER_ICON_PIXELS];
     Scroller statusDesc;
     Scroller forecastStr;
 };
@@ -44,7 +44,6 @@ struct WeatherData {
 struct SpotifyData {
     // String artistName;
     // String trackName;
-    // String albumName;
     uint16_t cover[PANEL_PIXELS];
 };
 

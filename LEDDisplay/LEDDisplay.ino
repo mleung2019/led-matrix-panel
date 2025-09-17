@@ -1,3 +1,4 @@
+#include "config.h"
 #include "wifiClient.h"
 
 /*--------------------- MATRIX PANEL CONFIG -------------------------*/
@@ -18,8 +19,8 @@ HUB75_I2S_CFG mxconfig(
 Widget widget;
 
 // WiFi
-const char *ssid = "x";
-const char *password = "x";
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
 
 void setup()
 {
