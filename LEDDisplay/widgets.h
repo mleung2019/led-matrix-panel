@@ -6,6 +6,7 @@
 #define SCROLLER_SIZE 128
 #define PANEL_LENGTH 64
 #define PANEL_PIXELS PANEL_LENGTH*PANEL_LENGTH
+#define BUFFER_SIZE PANEL_PIXELS*2 
 #define WEATHER_ICON_LENGTH 24
 #define WEATHER_ICON_PIXELS WEATHER_ICON_LENGTH*WEATHER_ICON_LENGTH
 
@@ -47,8 +48,8 @@ struct SpotifyData {
 };
 
 struct GalleryData {
-    // String imageUrl;
-    // String caption;
+    uint16_t frame[PANEL_PIXELS];
+    bool running = false;
 };
 
 struct Widget {
@@ -73,6 +74,7 @@ bool needScrollerUpdate(Scroller *scroller);
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type);
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);
 void drawSpotify(MatrixPanel_I2S_DMA *display, Widget *widget);
+void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget);
 
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller);
 void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);
@@ -81,8 +83,7 @@ void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);
 void drawCenteredText(
   MatrixPanel_I2S_DMA *display, 
   const char* msg, int y,
-  int width=0, 
-  uint16_t color=0xFFFF
+  int width=0
 );
 
 #endif

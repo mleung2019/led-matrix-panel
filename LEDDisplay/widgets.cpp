@@ -1,5 +1,5 @@
-#include "widgets.h"
 #include "wifiClient.h"
+#include "widgets.h"
 
 // Determine whether widget should ping the server
 bool needWidgetUpdate(Widget *widget) {
@@ -43,6 +43,17 @@ void fetchTask(void *parameter) {
           widget->isInit = true;
         }
         break;
+      case GALLERY:
+        if (!widget->isInit) {
+          Serial.println("He");
+          toggleStream(&widget->gallery);
+          widget->gallery.running = !widget->gallery.running;
+          widget->isInit = true;
+        }
+        if (widget->gallery.running) {
+          fetchGallery(&widget->gallery);
+        }
+        break;
     }
     vTaskDelay(pdMS_TO_TICKS(widget->updateInterval));
   }
@@ -56,6 +67,7 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
     switch (widget->type) {
       case WEATHER: widget->updateInterval = 5000; break;
       case SPOTIFY: widget->updateInterval = 2500; break;
+      case GALLERY: widget->updateInterval = 0; break;
     }
   }
 
@@ -78,11 +90,14 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       drawWeather(display, widget);
       scrollerControl(display, &widget->weather.statusDesc);
       scrollerControl(display, &widget->weather.forecastStr);
-    break;
+      break;
     case SPOTIFY:
       drawSpotify(display, widget);
       display->fillRect(0, 55, 64, 9, 0x0000);
       scrollerControl(display, &widget->spotify.trackInfo);
+      break;
+    case GALLERY:
+      drawGallery(display, widget);
   }
 
   display->flipDMABuffer();
@@ -133,6 +148,15 @@ void drawSpotify(MatrixPanel_I2S_DMA *display, Widget *widget) {
   spotify->trackInfo.y = 56;
 }
 
+void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget) {
+  GalleryData *gallery = &widget->gallery;
+  display->drawRGBBitmap(
+    0, 0, 
+    gallery->frame, 
+    PANEL_LENGTH, PANEL_LENGTH
+  );  
+}
+
 // If active, scroll msg. If inactive, center msg.
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
   display->setTextColor(scroller->color);
@@ -170,8 +194,7 @@ void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
 void drawCenteredText(
   MatrixPanel_I2S_DMA *display, 
   const char* msg, int y, 
-  int width,
-  uint16_t color
+  int width
 ) {
   int16_t x1, y1;
   uint16_t w, h;
@@ -185,6 +208,5 @@ void drawCenteredText(
 
   // Draw the text
   display->setCursor(x, y);
-  display->setTextColor(color);
   display->print(msg);
 }

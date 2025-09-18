@@ -91,7 +91,7 @@ void fetchWeatherIcon(WeatherData *weather) {
 }
 
 int fetchSpotify(SpotifyData *spotify) {
-HTTPClient http;
+  HTTPClient http;
   http.begin("http://192.168.0.14:5001/spotify");
 
   int result = 0;
@@ -140,6 +140,54 @@ void fetchSpotifyCover(SpotifyData *spotify) {
     spotify->cover,
     PANEL_LENGTH
   );
+}
+
+void toggleStream(GalleryData *gallery) {
+  HTTPClient http;
+  http.begin("http://192.168.0.14:5001/gallery");
+  int httpCode = http.GET();
+  http.end();
+}
+
+int fetchGallery(GalleryData *gallery) {
+  WiFiClient client;
+
+  if (!client.connect(SERVER_IP, GALLERY_SERVER_PORT)) {
+    Serial.println("Connection failed");
+    return 1;
+  }
+
+  Serial.println("Connected to gallery server");
+  uint8_t frameBuffer[BUFFER_SIZE];
+  size_t bytesReceived = 0;
+
+  while (client.connected()) {
+    // Read only available bytes
+    int avail = client.available();
+    if (avail > 0) {
+      int toRead = MIN(avail, BUFFER_SIZE - bytesReceived);
+      int n = client.read(frameBuffer + bytesReceived, toRead);
+      if (n > 0) {
+        bytesReceived += n;
+      }
+    }
+
+    // Full frame received
+    if (bytesReceived >= BUFFER_SIZE) {
+      // Copy to uint16_t buffer
+      for (int i = 0; i < PANEL_LENGTH * PANEL_LENGTH; i++) {
+        gallery->frame[i] = frameBuffer[i*2] | (frameBuffer[i*2 + 1] << 8);
+      }
+      // Reset for next frame
+      bytesReceived = 0;
+    }
+
+    delay(1);
+  }
+
+  // Client disconnected
+  Serial.println("Disconnected from server");
+  return 0;
 }
 
 void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength) {

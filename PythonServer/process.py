@@ -7,12 +7,13 @@ import struct
 import os
 import mimetypes
 
+PANEL_LENGTH = 64
+
 class Media:
     def __init__(self, frames, sleep):
         self.frames = frames
         self.sleep = sleep
 
-PANEL_LENGTH = 64
 
 def rgb_to_rgb565(r, g, b):
     # 5 bits for red (0-31)
@@ -58,10 +59,10 @@ def pad_to_size(img, target_size):
     return canvas
 
 # Used by PIL for images
-def convert_frame(img, offset=(0, 0), ):
+def convert_frame(img, offset=(0, 0)):
     rgb_values = bytearray()
-    for y in range(offset[1], offset[1] + img.size[1]):
-        for x in range(offset[0], offset[0] + img.size[0]):
+    for y in range(offset[1], offset[1] + PANEL_LENGTH):
+        for x in range(offset[0], offset[0] + PANEL_LENGTH):
             r, g, b = img.getpixel((x, y))
             rgb_values.extend(rgb_to_rgb565(r, g, b))
     return bytes(rgb_values)

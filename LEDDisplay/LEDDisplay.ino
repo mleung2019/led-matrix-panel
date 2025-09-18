@@ -20,7 +20,7 @@ Widget widget;
 
 // WiFi
 const char *ssid = WIFI_SSID;
-const char *password = WIFI_PASSWORD;
+const char *password = WIFI_PASS;
 
 void setup()
 {
@@ -50,7 +50,7 @@ void setup()
   xTaskCreate(
     fetchTask,
     "FetchTask",
-    4096,
+    12288,
     (void *)&widget,
     1,     
     nullptr
@@ -59,5 +59,5 @@ void setup()
 
 void loop()
 {
-  widgetControl(display, &widget, SPOTIFY);
+  widgetControl(display, &widget, (WidgetType) 2);
 }
