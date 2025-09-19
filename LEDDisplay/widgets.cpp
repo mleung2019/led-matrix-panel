@@ -1,22 +1,23 @@
 #include "wifiClient.h"
 #include "widgets.h"
 
-// Determine whether widget should ping the server
-bool needWidgetUpdate(Widget *widget) {
-  unsigned long now = millis();
-  if (now - widget->lastUpdate >= widget->updateInterval) {
-    widget->lastUpdate = now;
-    return true;
-  }
-  return false;
-}
-
 // Determine whether scroller should scroll
 bool needScrollerUpdate(Scroller *scroller) {
   unsigned long now = millis();
   if (scroller->active && now - scroller->lastUpdate >= scroller->updateInterval) {
     scroller->lastUpdate = now;
     scroller->x--;
+    return true;
+  }
+  return false;
+}
+
+// Determine whether streamer should consume frames from ringBuffer
+bool needStreamerUpdate(Streamer *streamer) {
+  unsigned long now = millis();
+  if (now - streamer->lastUpdate >= streamer->updateInterval) {
+    streamer->lastUpdate = now;
+    consumeGallery(streamer);
     return true;
   }
   return false;
@@ -73,6 +74,9 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       break;
     case SPOTIFY:
       needScrollerUpdate(&widget->spotify.trackInfo);
+      break;
+    case GALLERY:
+      needStreamerUpdate(&widget->gallery.streamer);
       break;
   }
 
@@ -147,7 +151,7 @@ void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget) {
   GalleryData *gallery = &widget->gallery;
   display->drawRGBBitmap(
     0, 0, 
-    gallery->frame, 
+    gallery->streamer.frame,
     PANEL_LENGTH, PANEL_LENGTH
   );  
 }

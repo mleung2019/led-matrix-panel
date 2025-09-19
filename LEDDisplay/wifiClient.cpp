@@ -142,6 +142,7 @@ void fetchSpotifyCover(SpotifyData *spotify) {
   );
 }
 
+// Writes to ringBuffer (producer)
 int fetchGallery(GalleryData *gallery, bool *isInit) {
   WiFiClient client;
 
@@ -151,37 +152,62 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
   }
 
   Serial.println("Connected to gallery server");
-  uint8_t frameBuffer[BUFFER_SIZE];
-  size_t bytesReceived = 0;
-
   while (client.connected() && *isInit) {
-    // Read only available bytes
-    int avail = client.available();
-    if (avail > 0) {
-      int toRead = MIN(avail, BUFFER_SIZE - bytesReceived);
-      int n = client.read(frameBuffer + bytesReceived, toRead);
-      if (n > 0) {
-        bytesReceived += n;
-      }
+    Streamer *streamer = &gallery->streamer;
+
+    // Wait until we have space in the ring buffer
+    if (streamer->framesReady >= RING_SIZE) {
+      delay(1);
+      continue;
     }
 
-    // Full frame received
-    if (bytesReceived >= BUFFER_SIZE) {
-      // Copy to uint16_t buffer
-      for (int i = 0; i < PANEL_LENGTH * PANEL_LENGTH; i++) {
-        gallery->frame[i] = frameBuffer[i*2] | (frameBuffer[i*2 + 1] << 8);
-      }
-      // Reset for next frame
-      bytesReceived = 0;
-    }
+    // Temp storage to read 2 bytes at a time
+    uint8_t tempBytes[2];
 
-    delay(1);
+    // Read header
+    while (client.available() < 2) delay(1);
+    client.read(tempBytes, 2);
+    uint16_t updateInterval = (tempBytes[0] << 8) | tempBytes[1];
+
+    // Read frame in a buffer
+    FrameSlot *ringBuffer = streamer->ringBuffer;
+    uint16_t *frame = ringBuffer[streamer->in].frame;
+    for (int i = 0; i < PANEL_PIXELS; ++i) {
+      while (client.available() < 2) delay(1);
+      client.read(tempBytes, 2);
+      frame[i] = tempBytes[0] | (tempBytes[1] << 8);
+    }
+    ringBuffer[streamer->in].updateInterval = updateInterval;
+    ringBuffer[streamer->in].valid = true;
+
+    streamer->in = (streamer->in + 1) % RING_SIZE;
+    streamer->framesReady++;
   }
 
   // Client disconnected
+  client.stop();
   Serial.println("Disconnected from server");
   return 0;
 }
+
+// Reads from ringBuffer (consumer)
+void consumeGallery(Streamer *streamer) {
+  if (streamer->framesReady == 0) return; // No frame ready
+
+  // Copy frame to display
+  FrameSlot *ringBuffer = streamer->ringBuffer;
+  uint16_t *frame = ringBuffer[streamer->out].frame;
+  for (int i = 0; i < PANEL_PIXELS; ++i) {
+    streamer->frame[i] = frame[i];
+  }
+
+  streamer->updateInterval = ringBuffer[streamer->out].updateInterval;
+  ringBuffer[streamer->out].valid = false;
+
+  streamer->out = (streamer->out + 1) % RING_SIZE;
+  streamer->framesReady--;
+}
+
 
 void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength) {
   HTTPClient http;

@@ -1,5 +1,6 @@
 import socket
 import time
+import struct
 
 from process import parse_gallery
 
@@ -27,11 +28,8 @@ def run_server():
                 while True:
                     for media in gallery:
                         for frame in media.frames:
-                            t0 = time.time()
-                            conn.sendall(frame)
-                            dt = (time.time() - t0) * 1000
-                            if dt > 5:
-                                print(f"sendall blocked {dt:.1f} ms")
-                            time.sleep(media.sleep / 1000.0)
+                            delay_header = struct.pack(">H", int(media.sleep))
+                            conn.sendall(delay_header + frame)
+                            time.sleep(0.01)
             except (BrokenPipeError, ConnectionResetError):
                 print("Client disconnected")
