@@ -142,14 +142,7 @@ void fetchSpotifyCover(SpotifyData *spotify) {
   );
 }
 
-void toggleStream(GalleryData *gallery) {
-  HTTPClient http;
-  http.begin("http://192.168.0.14:5001/gallery");
-  int httpCode = http.GET();
-  http.end();
-}
-
-int fetchGallery(GalleryData *gallery) {
+int fetchGallery(GalleryData *gallery, bool *isInit) {
   WiFiClient client;
 
   if (!client.connect(SERVER_IP, GALLERY_SERVER_PORT)) {
@@ -161,7 +154,7 @@ int fetchGallery(GalleryData *gallery) {
   uint8_t frameBuffer[BUFFER_SIZE];
   size_t bytesReceived = 0;
 
-  while (client.connected()) {
+  while (client.connected() && *isInit) {
     // Read only available bytes
     int avail = client.available();
     if (avail > 0) {

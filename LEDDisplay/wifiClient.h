@@ -6,6 +6,7 @@
 #define SERVER_IP "192.168.0.14"
 #define GALLERY_SERVER_PORT 5002
 #define DEGREE_SYMBOL 0xF8
+// #define MAX(a, b) ((a) < (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 void connectWiFi(const char *ssid, const char *password);
@@ -17,7 +18,6 @@ void fetchWeatherIcon(WeatherData *weather);
 int fetchSpotify(SpotifyData *spotify);
 void fetchSpotifyCover(SpotifyData *spotify);
 
-void toggleStream(GalleryData *gallery);
-int fetchGallery(GalleryData *gallery);
+int fetchGallery(GalleryData *gallery, bool *isInit);
 
 #endif

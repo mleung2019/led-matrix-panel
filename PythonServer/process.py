@@ -2,7 +2,6 @@ import requests
 from io import BytesIO
 from PIL import Image
 import cv2
-
 import struct
 import os
 import mimetypes

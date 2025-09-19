@@ -24,35 +24,29 @@ bool needScrollerUpdate(Scroller *scroller) {
 
 void fetchTask(void *parameter) {
   Widget *widget = (Widget *)parameter;
-  int result = 0;
   for (;;) {
     switch (widget->type) {
       case WEATHER:
-        result = fetchWeather(&widget->weather);
+        fetchWeather(&widget->weather);
         // Force fetch weather icon on startup
-        if (!result && !widget->isInit) {
+        if (!widget->isInit) {
           fetchWeatherIcon(&widget->weather);
           widget->isInit = true;
         }
         break;
       case SPOTIFY:
-        result = fetchSpotify(&widget->spotify);
+        fetchSpotify(&widget->spotify);
         // Force fetch album cover on startup
-        if (!result && !widget->isInit) {
+        if (!widget->isInit) {
           fetchSpotifyCover(&widget->spotify);
           widget->isInit = true;
         }
         break;
       case GALLERY:
         if (!widget->isInit) {
-          Serial.println("He");
-          toggleStream(&widget->gallery);
-          widget->gallery.running = !widget->gallery.running;
           widget->isInit = true;
         }
-        if (widget->gallery.running) {
-          fetchGallery(&widget->gallery);
-        }
+        fetchGallery(&widget->gallery, &widget->isInit);
         break;
     }
     vTaskDelay(pdMS_TO_TICKS(widget->updateInterval));
@@ -82,9 +76,10 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       break;
   }
 
-  // Draw frame
   display->clearScreen();
   display->setCursor(0, 0);
+
+  // Draw frame
   switch (widget->type) {
     case WEATHER:
       drawWeather(display, widget);
@@ -157,7 +152,7 @@ void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget) {
   );  
 }
 
-// If active, scroll msg. If inactive, center msg.
+// If active, scroll msg. If inactive, center msg
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
   display->setTextColor(scroller->color);
   if (scroller->active) {

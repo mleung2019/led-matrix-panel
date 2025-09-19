@@ -4,9 +4,9 @@ from flask import Flask, Response
 
 from widgets import weather, spotify, gallery
 
-# Load gallery before server starts
+# Load gallery and server
 gallery.load_gallery()
-is_gallery_running = False
+server_thread = threading.Thread(target=gallery.run_server, daemon=True).start()
 
 app = Flask(__name__)
 
@@ -35,18 +35,6 @@ def get_cover():
         spotify.fetch_cover(),
         mimetype="application/octet-stream"
     )
-
-@app.route("/gallery")
-def toggle_server():
-    global is_gallery_running
-    if not is_gallery_running:
-        gallery.start_server_thread()
-        is_gallery_running = True
-        return "Gallery server started"
-    else:
-        gallery.stop_server()
-        is_gallery_running = False
-        return "Gallery server stopped"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
