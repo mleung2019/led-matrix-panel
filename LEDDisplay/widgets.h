@@ -85,12 +85,13 @@ struct Widget {
   GalleryData gallery;
 };
 
-/* ----------------------- FETCHING FROM SERVER ----------------------- */
+/* ----------------------- FREERTOS TASKS ----------------------- */
 void fetchTask(void *parameter);
+void secondaryFetchTask(void *parameter);
 
 /* ----------------------- WIDGET/SCROLLER CONTROL ----------------------- */
 bool needScrollerUpdate(Scroller *scroller);
-bool needStreamerUpdate(Streamer *streamer);
+// bool needStreamerUpdate(Streamer *streamer);
 
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type);
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);

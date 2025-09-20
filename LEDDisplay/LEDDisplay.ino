@@ -47,10 +47,21 @@ void setup()
   display->cp437(true);
   display->setTextWrap(false);
 
+  // Primary fetching task used by the LED panel for most server requests
   xTaskCreate(
     fetchTask,
     "FetchTask",
-    12288,
+    4096,
+    (void *)&widget,
+    1,     
+    nullptr
+  );
+
+  // Secondary fetching task
+  xTaskCreate(
+    secondaryFetchTask,
+    "SecFetchTask",
+    4096,
     (void *)&widget,
     1,     
     nullptr

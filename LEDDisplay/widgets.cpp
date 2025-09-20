@@ -13,15 +13,15 @@ bool needScrollerUpdate(Scroller *scroller) {
 }
 
 // Determine whether streamer should consume frames from ringBuffer
-bool needStreamerUpdate(Streamer *streamer) {
-  unsigned long now = millis();
-  if (now - streamer->lastUpdate >= streamer->updateInterval) {
-    streamer->lastUpdate = now;
-    consumeGallery(streamer);
-    return true;
-  }
-  return false;
-}
+// bool needStreamerUpdate(Streamer *streamer) {
+//   unsigned long now = millis();
+//   if (now - streamer->lastUpdate >= streamer->updateInterval) {
+//     streamer->lastUpdate = now;
+//     consumeGallery(streamer);
+//     return true;
+//   }
+//   return false;
+// }
 
 void fetchTask(void *parameter) {
   Widget *widget = (Widget *)parameter;
@@ -54,6 +54,20 @@ void fetchTask(void *parameter) {
   }
 }
 
+void secondaryFetchTask(void *parameter) {
+  Widget *widget = (Widget *)parameter;
+  for (;;) {
+    switch (widget->type) {
+      case WEATHER: break;
+      case SPOTIFY: break;
+      case GALLERY:
+        consumeGallery(&widget->gallery.streamer);
+        break;
+    }
+    vTaskDelay(pdMS_TO_TICKS(widget->gallery.streamer.updateInterval));
+  }
+}
+
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type) {
   // Handle widget change
   if (widget->type != type || !widget->isInit) {
@@ -75,9 +89,7 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
     case SPOTIFY:
       needScrollerUpdate(&widget->spotify.trackInfo);
       break;
-    case GALLERY:
-      needStreamerUpdate(&widget->gallery.streamer);
-      break;
+    case GALLERY: break;
   }
 
   display->clearScreen();
