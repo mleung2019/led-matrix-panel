@@ -12,7 +12,6 @@ gallery = None
 def load_gallery():
     global gallery
     gallery = parse_gallery()
-    print("Finished parsing gallery")
 
 def run_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -21,15 +20,16 @@ def run_server():
         server_socket.listen(1)
         print(f"Server listening on {HOST}:{PORT}")
 
-        conn, addr = server_socket.accept()
-        with conn:
-            print(f"Client connected from {addr}")
-            try:
-                while True:
-                    for media in gallery:
-                        for frame in media.frames:
-                            delay_header = struct.pack(">H", int(media.sleep))
-                            conn.sendall(delay_header + frame)
-                            time.sleep(0.01)
-            except (BrokenPipeError, ConnectionResetError):
-                print("Client disconnected")
+        while True:
+            conn, addr = server_socket.accept()
+            with conn:
+                print(f"Client connected from {addr}")
+                try:
+                    while True:
+                        for media in gallery:
+                            for frame in media.frames:
+                                delay_header = struct.pack(">H", int(media.sleep))
+                                conn.sendall(delay_header + frame)
+                                time.sleep(0.01)
+                except (BrokenPipeError, ConnectionResetError):
+                    print("Client disconnected")

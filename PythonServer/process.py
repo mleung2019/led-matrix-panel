@@ -1,10 +1,11 @@
 import requests
-from io import BytesIO
 from PIL import Image
+from io import BytesIO
 import cv2
 import struct
-import os
 import mimetypes
+import os
+import pickle
 
 PANEL_LENGTH = 64
 
@@ -103,6 +104,13 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
 
 def parse_gallery():
     filenames = os.listdir("./gallery")
+
+    # If cache file exists, use that instead
+    if ".cache.pkl" in filenames:
+        print("Using gallery from cache file")
+        with open("./gallery/.cache.pkl", "rb") as file:
+            return pickle.load(file)
+
     gallery = []
 
     for filename in filenames:
@@ -173,5 +181,10 @@ def parse_gallery():
                         pass
 
                 gallery.append(Media(frames, 100))
+
+    # Cache the gallery object for future use
+    with open("./gallery/.cache.pkl", "wb") as file:
+        print("Cached gallery")
+        pickle.dump(gallery, file)
 
     return gallery

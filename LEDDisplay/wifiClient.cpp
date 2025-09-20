@@ -163,6 +163,8 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
       client.read(header, 2);
       uint16_t updateInterval = (header[0] << 8) | header[1];
 
+      unsigned long targetTime = millis() + updateInterval;
+
       FrameSlot *ringBuffer = streamer->ringBuffer;
       uint16_t *frame = ringBuffer[streamer->in].frame;
       uint8_t *dst = (uint8_t *)frame;
@@ -173,7 +175,7 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
       while (bytesRead < bytesNeeded) {
         int avail = client.available();
         if (avail > 0) {
-          int toRead = min((int)(bytesNeeded - bytesRead), avail);
+          int toRead = min((int) (bytesNeeded - bytesRead), avail);
           int n = client.read(dst + bytesRead, toRead);
           if (n > 0) {
             bytesRead += n;
@@ -183,11 +185,18 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
         }
       }
 
+      // Drop frame if target time already passed
+      if (millis() >= targetTime) {
+        Serial.println("Dropping frame");
+        xSemaphoreGive(streamer->emptySem);
+        continue;
+      }
+
       ringBuffer[streamer->in].updateInterval = updateInterval;
       ringBuffer[streamer->in].valid = true;
-
       streamer->in = (streamer->in + 1) % RING_SIZE;
     }
+
     xSemaphoreGive(streamer->filledSem);
   }
 
@@ -202,16 +211,15 @@ void consumeGallery(Streamer *streamer) {
   // Copy frame to display
   FrameSlot *ringBuffer = streamer->ringBuffer;
   uint16_t *frame = ringBuffer[streamer->out].frame;
+  
   for (int i = 0; i < PANEL_PIXELS; ++i) {
     streamer->frame[i] = frame[i];
   }
-  Serial.printf("Old frame consumed after waiting %d, now waiting %d\n", streamer->updateInterval, ringBuffer[streamer->out].updateInterval);
+
   streamer->updateInterval = ringBuffer[streamer->out].updateInterval;
   ringBuffer[streamer->out].valid = false;
-
   streamer->out = (streamer->out + 1) % RING_SIZE;
 }
-
 
 void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength) {
   HTTPClient http;
