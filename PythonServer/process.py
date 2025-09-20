@@ -1,13 +1,17 @@
-import requests
 from PIL import Image
+import requests
 from io import BytesIO
 import cv2
+import math
 import struct
 import mimetypes
 import os
 import pickle
 
 PANEL_LENGTH = 64
+
+FPS_CONST = 20
+DELAY_CONST = 1000 / FPS_CONST
 
 class Media:
     def __init__(self, frames, sleep):
@@ -181,6 +185,29 @@ def parse_gallery():
                         pass
 
                 gallery.append(Media(frames, 100))
+
+    # Throttle gallery such that everything runs at 20 FPS or lower
+    for media in gallery:
+        if media.sleep < DELAY_CONST:
+            original_frame_count = len(media.frames)
+            print("Original frames:", original_frame_count)
+
+            # Calculate how many frames to remove
+            target_frame_count = math.ceil(original_frame_count * media.sleep / DELAY_CONST)
+            frames_to_keep = target_frame_count
+
+            if frames_to_keep < original_frame_count:
+                step = original_frame_count / frames_to_keep
+                new_frames = [
+                    media.frames[math.floor(i * step)] for i in range(frames_to_keep)
+                ]
+                media.frames = new_frames
+                media.sleep = DELAY_CONST
+            else:
+                media.sleep = DELAY_CONST
+
+            print("Throttled frames:", len(media.frames))
+
 
     # Cache the gallery object for future use
     with open("./gallery/.cache.pkl", "wb") as file:
