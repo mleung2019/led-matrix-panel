@@ -44,7 +44,8 @@ struct Streamer {
   FrameSlot ringBuffer[RING_SIZE];
   int in = 0; // Write index
   int out = 0; // Read index
-  int framesReady = 0;
+  SemaphoreHandle_t filledSem = xSemaphoreCreateCounting(RING_SIZE, 0);
+  SemaphoreHandle_t emptySem = xSemaphoreCreateCounting(RING_SIZE, RING_SIZE);
   uint16_t frame[PANEL_PIXELS];
   // Control
   unsigned long lastUpdate = 0;
@@ -91,7 +92,6 @@ void secondaryFetchTask(void *parameter);
 
 /* ----------------------- WIDGET/SCROLLER CONTROL ----------------------- */
 bool needScrollerUpdate(Scroller *scroller);
-// bool needStreamerUpdate(Streamer *streamer);
 
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type);
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);

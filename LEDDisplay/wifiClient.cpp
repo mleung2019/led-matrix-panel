@@ -155,45 +155,40 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
   while (client.connected() && *isInit) {
     Streamer *streamer = &gallery->streamer;
 
-    // Wait until we have space in the ring buffer
-    if (streamer->framesReady >= RING_SIZE) {
-      delay(1);
-      continue;
-    }
+    if (xSemaphoreTake(streamer->emptySem, portMAX_DELAY) == pdTRUE) {
+      // Frame header
+      uint8_t header[2];
 
-    // Frame header
-    uint8_t header[2];
+      while (client.available() < 2) delay(1);
+      client.read(header, 2);
+      uint16_t updateInterval = (header[0] << 8) | header[1];
 
-    while (client.available() < 2) delay(1);
-    client.read(header, 2);
-    uint16_t updateInterval = (header[0] << 8) | header[1];
+      FrameSlot *ringBuffer = streamer->ringBuffer;
+      uint16_t *frame = ringBuffer[streamer->in].frame;
+      uint8_t *dst = (uint8_t *)frame;
 
-    FrameSlot *ringBuffer = streamer->ringBuffer;
-    uint16_t *frame = ringBuffer[streamer->in].frame;
-    uint8_t *dst = (uint8_t *)frame;
+      size_t bytesNeeded = BUFFER_SIZE;
+      size_t bytesRead = 0;
 
-    size_t bytesNeeded = BUFFER_SIZE;
-    size_t bytesRead = 0;
-
-    while (bytesRead < bytesNeeded) {
-      int avail = client.available();
-      if (avail > 0) {
-        int toRead = min((int)(bytesNeeded - bytesRead), avail);
-        int n = client.read(dst + bytesRead, toRead);
-        if (n > 0) {
-          bytesRead += n;
+      while (bytesRead < bytesNeeded) {
+        int avail = client.available();
+        if (avail > 0) {
+          int toRead = min((int)(bytesNeeded - bytesRead), avail);
+          int n = client.read(dst + bytesRead, toRead);
+          if (n > 0) {
+            bytesRead += n;
+          }
+        } else {
+          delay(1);
         }
-      } else {
-        delay(1);
       }
+
+      ringBuffer[streamer->in].updateInterval = updateInterval;
+      ringBuffer[streamer->in].valid = true;
+
+      streamer->in = (streamer->in + 1) % RING_SIZE;
     }
-
-    Serial.printf("Produced new frame %d\n", streamer->framesReady+1);
-    ringBuffer[streamer->in].updateInterval = updateInterval;
-    ringBuffer[streamer->in].valid = true;
-
-    streamer->in = (streamer->in + 1) % RING_SIZE;
-    streamer->framesReady++;
+    xSemaphoreGive(streamer->filledSem);
   }
 
   // Client disconnected
@@ -204,11 +199,6 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
 
 // Reads from ringBuffer (consumer)
 void consumeGallery(Streamer *streamer) {
-  if (streamer->framesReady == 0) {
-    Serial.println("Scheduled but no frame is ready");
-    return; // No frame ready
-  }
-
   // Copy frame to display
   FrameSlot *ringBuffer = streamer->ringBuffer;
   uint16_t *frame = ringBuffer[streamer->out].frame;
@@ -220,7 +210,6 @@ void consumeGallery(Streamer *streamer) {
   ringBuffer[streamer->out].valid = false;
 
   streamer->out = (streamer->out + 1) % RING_SIZE;
-  streamer->framesReady--;
 }
 
 

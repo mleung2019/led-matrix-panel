@@ -12,17 +12,6 @@ bool needScrollerUpdate(Scroller *scroller) {
   return false;
 }
 
-// Determine whether streamer should consume frames from ringBuffer
-// bool needStreamerUpdate(Streamer *streamer) {
-//   unsigned long now = millis();
-//   if (now - streamer->lastUpdate >= streamer->updateInterval) {
-//     streamer->lastUpdate = now;
-//     consumeGallery(streamer);
-//     return true;
-//   }
-//   return false;
-// }
-
 void fetchTask(void *parameter) {
   Widget *widget = (Widget *)parameter;
   for (;;) {
@@ -61,7 +50,10 @@ void secondaryFetchTask(void *parameter) {
       case WEATHER: break;
       case SPOTIFY: break;
       case GALLERY:
-        consumeGallery(&widget->gallery.streamer);
+        if (xSemaphoreTake(widget->gallery.streamer.filledSem, portMAX_DELAY) == pdTRUE) {
+          consumeGallery(&widget->gallery.streamer);
+        }
+        xSemaphoreGive(widget->gallery.streamer.emptySem);
         break;
     }
     vTaskDelay(pdMS_TO_TICKS(widget->gallery.streamer.updateInterval));
