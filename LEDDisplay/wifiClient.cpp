@@ -86,7 +86,7 @@ void fetchWeatherIcon(WeatherData *weather) {
   writeURLtoBitmap(
     "http://192.168.0.14:5001/weather/icon", 
     weather->statusIcon,
-    WEATHER_ICON_LENGTH
+    ICON_LENGTH
   );
 }
 

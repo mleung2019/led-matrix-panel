@@ -19,4 +19,8 @@ void fetchSpotifyCover(SpotifyData *spotify);
 
 int fetchGallery(GalleryData *gallery, bool *isInit);
 void consumeGallery(Streamer *streamer);
+
+int fetchSports(SportsData *sports);
+void fetchSportsIcons(SportsData *sports);
+
 #endif

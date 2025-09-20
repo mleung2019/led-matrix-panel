@@ -12,7 +12,6 @@ def get_coords():
 
 def get_status(weather_code, is_day):
     wmo_code = int(weather_code)
-
     with open("./widgets/wmo-codes.json", "r") as file:
         data = json.load(file)
         status = data[str(wmo_code)]["day" if is_day else "night"]

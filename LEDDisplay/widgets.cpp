@@ -38,6 +38,14 @@ void fetchTask(void *parameter) {
         }
         fetchGallery(&widget->gallery, &widget->isInit);
         break;
+      case SPORTS:
+        // fetchSports(&widget->sports);
+        // Force fetch team icons on startup
+        if (!widget->isInit) {
+          // fetchSportsIcons(&widget->sports);
+          widget->isInit = true;
+        }
+        break;
     }
     vTaskDelay(pdMS_TO_TICKS(widget->updateInterval));
   }
@@ -54,9 +62,10 @@ void secondaryFetchTask(void *parameter) {
           consumeGallery(&widget->gallery.streamer);
         }
         xSemaphoreGive(widget->gallery.streamer.emptySem);
+        vTaskDelay(pdMS_TO_TICKS(widget->gallery.streamer.updateInterval));
         break;
+      case SPORTS: break;
     }
-    vTaskDelay(pdMS_TO_TICKS(widget->gallery.streamer.updateInterval));
   }
 }
 
@@ -69,10 +78,11 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       case WEATHER: widget->updateInterval = 5000; break;
       case SPOTIFY: widget->updateInterval = 2500; break;
       case GALLERY: widget->updateInterval = 0; break;
+      case SPORTS: widget->updateInterval = 5000; break;
     }
   }
 
-  // Update frame
+  // Update per frame
   switch (widget->type) {
     case WEATHER:
       needScrollerUpdate(&widget->weather.statusDesc);
@@ -82,6 +92,9 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       needScrollerUpdate(&widget->spotify.trackInfo);
       break;
     case GALLERY: break;
+    case SPORTS:
+      needScrollerUpdate(&widget->sports.shortDetail);
+      break;
   }
 
   display->clearScreen();
@@ -101,6 +114,11 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
       break;
     case GALLERY:
       drawGallery(display, widget);
+      break;
+    case SPORTS:
+      drawSports(display, widget);
+      scrollerControl(display, &widget->sports.shortDetail);
+      break;
   }
 
   display->flipDMABuffer();
@@ -128,7 +146,7 @@ void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget) {
   display->drawRGBBitmap(
     36, 20, 
     weather->statusIcon, 
-    WEATHER_ICON_LENGTH, WEATHER_ICON_LENGTH
+    ICON_LENGTH, ICON_LENGTH
   ); 
 
   // 5 HOUR FORECAST
@@ -158,6 +176,33 @@ void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget) {
     gallery->streamer.frame,
     PANEL_LENGTH, PANEL_LENGTH
   );  
+}
+
+void drawSports(MatrixPanel_I2S_DMA *display, Widget *widget) {
+  SportsData *sports = &widget->sports;
+
+  // SPORT NAME
+  drawCenteredText(display, sports->sportName, 2);
+
+  // TEAM NAMES
+  drawCenteredText(display, sports->team1Name, 11, 32);
+  drawCenteredText(display, sports->team2Name, 11, 32, 32);
+  
+  // TEAM ICONS
+  display->drawRect(
+    0+4, 20, ICON_LENGTH, ICON_LENGTH, 0xF800
+  );
+  display->drawRect(
+    64-ICON_LENGTH-4, 20, ICON_LENGTH, ICON_LENGTH, 0xF800
+  ); 
+
+  // TEAM SCORES
+  drawCenteredText(display, sports->team1Score, 46, 32);
+  drawCenteredText(display, sports->team2Score, 46, 32, 32);
+
+  // SHORT DETAIL
+  scrollerResize(display, &sports->shortDetail);
+  sports->shortDetail.y = 55;
 }
 
 // If active, scroll msg. If inactive, center msg
@@ -197,7 +242,7 @@ void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller) {
 void drawCenteredText(
   MatrixPanel_I2S_DMA *display, 
   const char* msg, int y, 
-  int width
+  int width, int offset
 ) {
   int16_t x1, y1;
   uint16_t w, h;
@@ -207,7 +252,7 @@ void drawCenteredText(
   if (!width) {
     width = display->width();
   }
-  int x = (width - w) / 2;
+  int x = ((width - w) / 2) + offset;
 
   // Draw the text
   display->setCursor(x, y);

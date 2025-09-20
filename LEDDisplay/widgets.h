@@ -11,14 +11,15 @@
 #define PANEL_PIXELS PANEL_LENGTH*PANEL_LENGTH
 #define BUFFER_SIZE PANEL_PIXELS*2 
 
-#define WEATHER_ICON_LENGTH 24
-#define WEATHER_ICON_PIXELS WEATHER_ICON_LENGTH*WEATHER_ICON_LENGTH
+#define ICON_LENGTH 24
+#define ICON_PIXELS ICON_LENGTH*ICON_LENGTH
 
 /* ----------------------- ENUMS/STRUCTS ----------------------- */
 enum WidgetType {
   WEATHER,
   SPOTIFY,
-  GALLERY
+  GALLERY,
+  SPORTS
 };
 
 struct Scroller {
@@ -60,7 +61,7 @@ struct WeatherData {
   char currentTemp[8];
   char hiloTemp[16];
   // Status
-  uint16_t statusIcon[WEATHER_ICON_PIXELS];
+  uint16_t statusIcon[ICON_PIXELS];
   Scroller statusDesc;
   Scroller forecastStr;
 };
@@ -74,6 +75,17 @@ struct GalleryData {
   Streamer streamer;
 };
 
+struct SportsData {
+  char sportName[16] = "Basketball";
+  char team1Name[8] = "AB";
+  char team1Score[8] = "145";
+  uint16_t team1Icon[ICON_PIXELS];
+  char team2Name[8] = "CDD";
+  char team2Score[8] = "130";
+  uint16_t team2Icon[ICON_PIXELS];
+  Scroller shortDetail;
+};
+
 struct Widget {
   WidgetType type;
   // Cache and timing variables
@@ -84,6 +96,7 @@ struct Widget {
   WeatherData weather;
   SpotifyData spotify;
   GalleryData gallery;
+  SportsData sports;
 };
 
 /* ----------------------- FREERTOS TASKS ----------------------- */
@@ -97,6 +110,7 @@ void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type
 void drawWeather(MatrixPanel_I2S_DMA *display, Widget *widget);
 void drawSpotify(MatrixPanel_I2S_DMA *display, Widget *widget);
 void drawGallery(MatrixPanel_I2S_DMA *display, Widget *widget);
+void drawSports(MatrixPanel_I2S_DMA *display, Widget *widget);
 
 void scrollerControl(MatrixPanel_I2S_DMA *display, Scroller *scroller);
 void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);
@@ -105,7 +119,7 @@ void scrollerResize(MatrixPanel_I2S_DMA *display, Scroller *scroller);
 void drawCenteredText(
   MatrixPanel_I2S_DMA *display, 
   const char* msg, int y,
-  int width=0
+  int width=0, int offset=0
 );
 
 #endif

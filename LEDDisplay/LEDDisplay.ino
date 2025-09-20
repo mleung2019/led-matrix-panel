@@ -70,5 +70,5 @@ void setup()
 
 void loop()
 {
-  widgetControl(display, &widget, (WidgetType) 2);
+  widgetControl(display, &widget, (WidgetType) 3);
 }
