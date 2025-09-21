@@ -2,7 +2,7 @@ import threading
 import asyncio
 from flask import Flask, Response
 
-from widgets import weather, spotify, gallery
+from widgets import weather, spotify, gallery, sports
 
 # Load gallery and server
 gallery.load_gallery()
@@ -33,6 +33,24 @@ def get_track():
 def get_cover():
     return Response(
         spotify.fetch_cover(),
+        mimetype="application/octet-stream"
+    )
+
+@app.route("/sports")
+def get_sports():
+    return sports.fetch_game()
+
+@app.route("/sports/icon1")
+def get_icon_1():
+    return Response(
+        sports.fetch_team_icons(True),
+        mimetype="application/octet-stream"
+    )
+
+@app.route("/sports/icon2")
+def get_icon_2():
+    return Response(
+        sports.fetch_team_icons(False),
         mimetype="application/octet-stream"
     )
 

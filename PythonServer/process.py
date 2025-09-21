@@ -63,10 +63,10 @@ def pad_to_size(img, target_size):
     return canvas
 
 # Used by PIL for images
-def convert_frame(img, offset=(0, 0)):
+def convert_frame(img, offset=(0, 0), size=(PANEL_LENGTH, PANEL_LENGTH)):
     rgb_values = bytearray()
-    for y in range(offset[1], offset[1] + PANEL_LENGTH):
-        for x in range(offset[0], offset[0] + PANEL_LENGTH):
+    for y in range(offset[1], offset[1] + size[0]):
+        for x in range(offset[0], offset[0] + size[1]):
             r, g, b = img.getpixel((x, y))
             rgb_values.extend(rgb_to_rgb565(r, g, b))
     return bytes(rgb_values)
@@ -102,7 +102,7 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
         # Convert back to RGB (drops alpha but keeps background filled)
         pil_image = composite.convert("RGB")
 
-        return convert_frame(pil_image)
+        return convert_frame(pil_image, size=size)
     else:
         return None
 
