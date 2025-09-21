@@ -53,7 +53,7 @@ def fetch_info():
                 "team2_name": team2["team"]["abbreviation"],
                 "team2_score": team2["score"],
                 "team2_icon": team2["team"]["logo"],
-                "short_detail": short_detail
+                "short_detail": short_detail.replace(" - ", "-")
             }
             sports_log.append(game_data)
     
