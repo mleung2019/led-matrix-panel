@@ -48,9 +48,8 @@ struct Streamer {
   SemaphoreHandle_t filledSem = xSemaphoreCreateCounting(RING_SIZE, 0);
   SemaphoreHandle_t emptySem = xSemaphoreCreateCounting(RING_SIZE, RING_SIZE);
   uint16_t frame[PANEL_PIXELS];
-  // Control
-  unsigned long lastUpdate = 0;
-  unsigned long updateInterval = 0;
+  TaskHandle_t streamTaskHandle = NULL;
+  volatile bool isStreaming = false;
 };
 
 struct WeatherData {
@@ -76,18 +75,18 @@ struct GalleryData {
 };
 
 struct SportsData {
-  char sportName[16] = "Basketball";
-  char team1Name[8] = "AB";
-  char team1Score[8] = "145";
+  char sportName[16] = "";
+  char team1Name[8] = "";
+  char team1Score[8] = "";
   uint16_t team1Icon[ICON_PIXELS];
-  char team2Name[8] = "CDD";
-  char team2Score[8] = "130";
+  char team2Name[8] = "";
+  char team2Score[8] = "";
   uint16_t team2Icon[ICON_PIXELS];
   Scroller shortDetail;
 };
 
 struct Widget {
-  WidgetType type;
+  volatile WidgetType type;
   // Cache and timing variables
   bool isInit = false;
   unsigned long lastUpdate = 0;
@@ -101,7 +100,7 @@ struct Widget {
 
 /* ----------------------- FREERTOS TASKS ----------------------- */
 void fetchTask(void *parameter);
-void secondaryFetchTask(void *parameter);
+void galleryProducerTask(void *parameter);
 
 /* ----------------------- WIDGET/SCROLLER CONTROL ----------------------- */
 bool needScrollerUpdate(Scroller *scroller);

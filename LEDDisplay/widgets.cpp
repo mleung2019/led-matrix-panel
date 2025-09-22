@@ -33,10 +33,10 @@ void fetchTask(void *parameter) {
         }
         break;
       case GALLERY:
-        if (!widget->isInit) {
-          widget->isInit = true;
+        if (xSemaphoreTake(widget->gallery.streamer.filledSem, portMAX_DELAY) == pdTRUE) {
+          consumeGallery(widget);
         }
-        fetchGallery(&widget->gallery, &widget->isInit);
+        xSemaphoreGive(widget->gallery.streamer.emptySem);
         break;
       case SPORTS:
         // fetchSports(&widget->sports);
@@ -51,34 +51,42 @@ void fetchTask(void *parameter) {
   }
 }
 
-void secondaryFetchTask(void *parameter) {
+void galleryProducerTask(void *parameter) {
   Widget *widget = (Widget *)parameter;
   for (;;) {
-    switch (widget->type) {
-      case WEATHER: break;
-      case SPOTIFY: break;
-      case GALLERY:
-        if (xSemaphoreTake(widget->gallery.streamer.filledSem, portMAX_DELAY) == pdTRUE) {
-          consumeGallery(&widget->gallery.streamer);
-        }
-        xSemaphoreGive(widget->gallery.streamer.emptySem);
-        vTaskDelay(pdMS_TO_TICKS(widget->gallery.streamer.updateInterval));
-        break;
-      case SPORTS: break;
+    if (widget->gallery.streamer.isStreaming) {
+      fetchGallery(&widget->gallery);
+      if (!widget->isInit) {
+        widget->isInit = true;
+      }
     }
   }
 }
 
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type) {
   // Handle widget change
-  if (widget->type != type || !widget->isInit) {
+  if (widget->type != type) {
+    if (widget->type == GALLERY) {
+      widget->gallery.streamer.isStreaming = false;
+    }
+
     widget->isInit = false;
     widget->type = type;
+
     switch (widget->type) {
-      case WEATHER: widget->updateInterval = 5000; break;
-      case SPOTIFY: widget->updateInterval = 2500; break;
-      case GALLERY: widget->updateInterval = 0; break;
-      case SPORTS: widget->updateInterval = 5000; break;
+      case WEATHER: 
+        widget->updateInterval = 5000; 
+        break;
+      case SPOTIFY: 
+        widget->updateInterval = 2500; 
+        break;
+      case GALLERY: 
+        widget->updateInterval = 0; 
+        widget->gallery.streamer.isStreaming = true;
+        break;
+      case SPORTS: 
+        widget->updateInterval = 5000;
+        break;
     }
   }
 

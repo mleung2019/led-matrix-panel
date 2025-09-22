@@ -17,8 +17,8 @@ void fetchWeatherIcon(WeatherData *weather);
 int fetchSpotify(SpotifyData *spotify);
 void fetchSpotifyCover(SpotifyData *spotify);
 
-int fetchGallery(GalleryData *gallery, bool *isInit);
-void consumeGallery(Streamer *streamer);
+int fetchGallery(GalleryData *gallery);
+void consumeGallery(Widget *widget);
 
 int fetchSports(SportsData *sports);
 void fetchSportsIcons(SportsData *sports);

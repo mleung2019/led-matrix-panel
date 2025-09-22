@@ -56,19 +56,27 @@ void setup()
     1,     
     nullptr
   );
-
-  // Secondary fetching task
   xTaskCreate(
-    secondaryFetchTask,
-    "SecFetchTask",
-    4096,
+    galleryProducerTask,
+    "GalleryTask",
+    8192,
     (void *)&widget,
-    1,     
+    1,
     nullptr
   );
 }
 
+int type = 0;
+unsigned long lastUpdate = 0;
+unsigned long updateInterval = 10000;
+
 void loop()
 {
-  widgetControl(display, &widget, (WidgetType) 3);
+  unsigned long now = millis();
+  if (now - lastUpdate >= updateInterval) {
+    lastUpdate = now;
+    type = (type + 1) % 4;
+  }
+
+  widgetControl(display, &widget, (WidgetType) type);
 }

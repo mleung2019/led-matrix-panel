@@ -86,7 +86,7 @@ void fetchWeatherIcon(WeatherData *weather) {
   writeURLtoBitmap(
     "http://192.168.0.14:5001/weather/icon", 
     weather->statusIcon,
-    ICON_LENGTH
+    ICON_PIXELS * sizeof(uint16_t)
   );
 }
 
@@ -138,12 +138,12 @@ void fetchSpotifyCover(SpotifyData *spotify) {
   writeURLtoBitmap(
     "http://192.168.0.14:5001/spotify/cover", 
     spotify->cover,
-    PANEL_LENGTH
+    PANEL_PIXELS * sizeof(uint16_t)
   );
 }
 
 // Writes to ringBuffer (producer)
-int fetchGallery(GalleryData *gallery, bool *isInit) {
+int fetchGallery(GalleryData *gallery) {
   WiFiClient client;
 
   if (!client.connect(SERVER_IP, GALLERY_SERVER_PORT)) {
@@ -152,10 +152,10 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
   }
 
   Serial.println("Connected to gallery server");
-  while (client.connected() && *isInit) {
+  while (client.connected()) {
     Streamer *streamer = &gallery->streamer;
 
-    if (xSemaphoreTake(streamer->emptySem, portMAX_DELAY) == pdTRUE) {
+    if (xSemaphoreTake(streamer->emptySem, pdMS_TO_TICKS(500)) == pdTRUE) {
       // Frame header
       uint8_t header[2];
 
@@ -172,7 +172,7 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
       size_t bytesNeeded = BUFFER_SIZE;
       size_t bytesRead = 0;
 
-      while (bytesRead < bytesNeeded) {
+      while (bytesRead < bytesNeeded && streamer->isStreaming) {
         int avail = client.available();
         if (avail > 0) {
           int toRead = min((int) (bytesNeeded - bytesRead), avail);
@@ -185,9 +185,15 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
         }
       }
 
+      if (!streamer->isStreaming) {
+        Serial.printf("Exiting\n");
+        xSemaphoreGive(streamer->emptySem);
+        break;
+      }
+
       // Drop frame if target time already passed
       if (millis() >= targetTime) {
-        Serial.println("Dropping frame");
+        Serial.printf("Dropping frame \n");
         xSemaphoreGive(streamer->emptySem);
         continue;
       }
@@ -195,6 +201,9 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
       ringBuffer[streamer->in].updateInterval = updateInterval;
       ringBuffer[streamer->in].valid = true;
       streamer->in = (streamer->in + 1) % RING_SIZE;
+    } else if (!streamer->isStreaming) {
+      Serial.println("Exiting off sema block");
+      break;
     }
 
     xSemaphoreGive(streamer->filledSem);
@@ -207,7 +216,10 @@ int fetchGallery(GalleryData *gallery, bool *isInit) {
 }
 
 // Reads from ringBuffer (consumer)
-void consumeGallery(Streamer *streamer) {
+void consumeGallery(Widget *widget) {
+  Streamer *streamer = &widget->gallery.streamer;
+
+
   // Copy frame to display
   FrameSlot *ringBuffer = streamer->ringBuffer;
   uint16_t *frame = ringBuffer[streamer->out].frame;
@@ -216,28 +228,30 @@ void consumeGallery(Streamer *streamer) {
     streamer->frame[i] = frame[i];
   }
 
-  streamer->updateInterval = ringBuffer[streamer->out].updateInterval;
+  widget->updateInterval = ringBuffer[streamer->out].updateInterval;
   ringBuffer[streamer->out].valid = false;
   streamer->out = (streamer->out + 1) % RING_SIZE;
 }
 
-void writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength) {
+void writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.begin(url);
-  
+
   int httpCode = http.GET();
 
   if (httpCode == HTTP_CODE_OK) {
     WiFiClient *stream = http.getStreamPtr();
 
-    int size = imgLength * imgLength;
+    uint8_t *dst = reinterpret_cast<uint8_t *>(frame);
+    int bytesRead = 0;
 
-    // Get full image
-    uint8_t buffer[2];
-    for (int i = 0; i < size; i++) {
-      if (stream->readBytes(buffer, 2) == 2) {
-        frame[i] = buffer[0] | (buffer[1] << 8);
-      }
+    while (bytesRead < size) {
+      int n = stream->readBytes(dst + bytesRead, size - bytesRead);
+      if (n > 0) {
+        bytesRead += n;
+      } 
+      else vTaskDelay(1); 
+      if ((bytesRead & 0x3FF) == 0) vTaskDelay(0); 
     }
   }
 
