@@ -72,11 +72,12 @@ def fetch_game():
 
     return sports_log[idx]
 
-def fetch_team_icons(is_first_team):
+def fetch_team_icons():
     global sports_log, idx
 
-    icon = sports_log[idx]["team1_icon" if is_first_team else "team2_icon"]
+    icons = sports_log[idx]
     return process.parse_url(
-        icon, (24, 24)
+        icons["team1_icon"], (24, 24)
+    ) + process.parse_url(
+        icons["team2_icon"], (24, 24)
     )
-    

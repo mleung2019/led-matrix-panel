@@ -51,7 +51,7 @@ void setup()
   xTaskCreate(
     fetchTask,
     "FetchTask",
-    4096,
+    8192,
     (void *)&widget,
     1,     
     nullptr
@@ -59,7 +59,7 @@ void setup()
   xTaskCreate(
     galleryProducerTask,
     "GalleryTask",
-    8192,
+    4096,
     (void *)&widget,
     1,
     nullptr
@@ -68,7 +68,7 @@ void setup()
 
 int type = 0;
 unsigned long lastUpdate = 0;
-unsigned long updateInterval = 10000;
+unsigned long updateInterval = 30000;
 
 void loop()
 {

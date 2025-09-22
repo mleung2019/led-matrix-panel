@@ -75,12 +75,12 @@ struct GalleryData {
 };
 
 struct SportsData {
-  char sportName[16] = "";
-  char team1Name[8] = "";
-  char team1Score[8] = "";
+  char sportName[16];
+  char team1Name[8];
+  char team1Score[8];
   uint16_t team1Icon[ICON_PIXELS];
-  char team2Name[8] = "";
-  char team2Score[8] = "";
+  char team2Name[8];
+  char team2Score[8];
   uint16_t team2Icon[ICON_PIXELS];
   Scroller shortDetail;
 };

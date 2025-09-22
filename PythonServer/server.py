@@ -40,17 +40,10 @@ def get_cover():
 def get_sports():
     return sports.fetch_game()
 
-@app.route("/sports/icon1")
-def get_icon_1():
+@app.route("/sports/icons")
+def get_icons():
     return Response(
-        sports.fetch_team_icons(True),
-        mimetype="application/octet-stream"
-    )
-
-@app.route("/sports/icon2")
-def get_icon_2():
-    return Response(
-        sports.fetch_team_icons(False),
+        sports.fetch_team_icons(),
         mimetype="application/octet-stream"
     )
 

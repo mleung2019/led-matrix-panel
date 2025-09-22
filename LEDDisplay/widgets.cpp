@@ -39,10 +39,9 @@ void fetchTask(void *parameter) {
         xSemaphoreGive(widget->gallery.streamer.emptySem);
         break;
       case SPORTS:
-        // fetchSports(&widget->sports);
-        // Force fetch team icons on startup
+        fetchSports(&widget->sports);
+        fetchSportsIcons(&widget->sports);
         if (!widget->isInit) {
-          // fetchSportsIcons(&widget->sports);
           widget->isInit = true;
         }
         break;
@@ -197,11 +196,15 @@ void drawSports(MatrixPanel_I2S_DMA *display, Widget *widget) {
   drawCenteredText(display, sports->team2Name, 11, 32, 32);
   
   // TEAM ICONS
-  display->drawRect(
-    0+4, 20, ICON_LENGTH, ICON_LENGTH, 0xF800
-  );
-  display->drawRect(
-    64-ICON_LENGTH-4, 20, ICON_LENGTH, ICON_LENGTH, 0xF800
+  display->drawRGBBitmap(
+    0+4, 20, 
+    sports->team1Icon, 
+    ICON_LENGTH, ICON_LENGTH
+  ); 
+  display->drawRGBBitmap(
+    64-ICON_LENGTH-4, 20, 
+    sports->team2Icon, 
+    ICON_LENGTH, ICON_LENGTH
   ); 
 
   // TEAM SCORES

@@ -186,7 +186,6 @@ int fetchGallery(GalleryData *gallery) {
       }
 
       if (!streamer->isStreaming) {
-        Serial.printf("Exiting\n");
         xSemaphoreGive(streamer->emptySem);
         break;
       }
@@ -202,7 +201,6 @@ int fetchGallery(GalleryData *gallery) {
       ringBuffer[streamer->in].valid = true;
       streamer->in = (streamer->in + 1) % RING_SIZE;
     } else if (!streamer->isStreaming) {
-      Serial.println("Exiting off sema block");
       break;
     }
 
@@ -233,6 +231,64 @@ void consumeGallery(Widget *widget) {
   streamer->out = (streamer->out + 1) % RING_SIZE;
 }
 
+int fetchSports(SportsData *sports) {
+  HTTPClient http;
+  http.begin("http://192.168.0.14:5001/sports");
+
+  int result = 0;
+  int httpCode = http.GET();
+  Serial.printf("Sports: %d\n", httpCode);
+  if (httpCode > 0) {
+    String payload = http.getString();
+
+    StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      strncpy(sports->sportName, doc["sport_name"], sizeof(sports->sportName));
+      strncpy(sports->team1Name, doc["team1_name"], sizeof(sports->team1Name));
+      strncpy(sports->team1Score, doc["team1_score"], sizeof(sports->team1Score));
+      strncpy(sports->team2Name, doc["team2_name"], sizeof(sports->team2Name));
+      strncpy(sports->team2Score, doc["team2_score"], sizeof(sports->team2Score));
+      
+      memset(sports->shortDetail.msg, 0, SCROLLER_SIZE);
+      strncpy(sports->shortDetail.msg, doc["short_detail"], sizeof(sports->shortDetail.msg));
+    }
+    // Parsing problem
+    else {
+      result = 1;
+    }
+  }
+  // Server problem
+  else {
+    result = 2;
+  }
+  // Success
+  http.end();
+  return result;
+}
+
+void fetchSportsIcons(SportsData *sports) {
+  uint16_t combinedBuffer[2 * ICON_PIXELS];
+  writeURLtoBitmap(
+    "http://192.168.0.14:5001/sports/icons", 
+    combinedBuffer,
+    2 * ICON_PIXELS * sizeof(uint16_t)
+  );
+  memcpy(
+    sports->team1Icon, 
+    combinedBuffer, 
+    ICON_PIXELS * sizeof(uint16_t)
+  );
+  memcpy(
+    sports->team2Icon, 
+    combinedBuffer + ICON_PIXELS, 
+    ICON_PIXELS * sizeof(uint16_t)
+  );
+
+  return;
+}
+
 void writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.begin(url);
@@ -246,11 +302,14 @@ void writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
     int bytesRead = 0;
 
     while (bytesRead < size) {
-      int n = stream->readBytes(dst + bytesRead, size - bytesRead);
-      if (n > 0) {
-        bytesRead += n;
+      int avail = stream->available();
+      if (avail > 0) {
+          int toRead = min(avail, size - bytesRead);
+          int n = stream->readBytes(dst + bytesRead, toRead);
+          if (n > 0) bytesRead += n;
+      } else {
+        vTaskDelay(1); // yield while waiting for data
       } 
-      else vTaskDelay(1); 
       if ((bytesRead & 0x3FF) == 0) vTaskDelay(0); 
     }
   }
