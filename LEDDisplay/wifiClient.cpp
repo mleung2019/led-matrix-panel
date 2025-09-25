@@ -4,6 +4,8 @@
 
 #include "wifiClient.h"
 
+String baseURL = String("http://") + SERVER_IP + ":" + SERVER_PORT;
+
 void connectWiFi(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
   unsigned long start = millis();
@@ -21,7 +23,7 @@ void connectWiFi(const char *ssid, const char *password) {
 
 int fetchWeather(WeatherData *weather) {
   HTTPClient http;
-  http.begin("http://192.168.0.14:5001/weather");
+  http.begin(baseURL + "/weather");
 
   int result = 0;
   int httpCode = http.GET();
@@ -84,7 +86,7 @@ int fetchWeather(WeatherData *weather) {
 
 void fetchWeatherIcon(WeatherData *weather) {
   writeURLtoBitmap(
-    "http://192.168.0.14:5001/weather/icon", 
+    (baseURL + "/weather/icon").c_str(), 
     weather->statusIcon,
     ICON_PIXELS * sizeof(uint16_t)
   );
@@ -92,7 +94,7 @@ void fetchWeatherIcon(WeatherData *weather) {
 
 int fetchSpotify(SpotifyData *spotify) {
   HTTPClient http;
-  http.begin("http://192.168.0.14:5001/spotify");
+  http.begin(baseURL + "/spotify");
 
   int result = 0;
   int httpCode = http.GET();
@@ -136,7 +138,7 @@ int fetchSpotify(SpotifyData *spotify) {
 
 void fetchSpotifyCover(SpotifyData *spotify) {
   writeURLtoBitmap(
-    "http://192.168.0.14:5001/spotify/cover", 
+    (baseURL + "/spotify/cover").c_str(), 
     spotify->cover,
     PANEL_PIXELS * sizeof(uint16_t)
   );
@@ -233,7 +235,7 @@ void consumeGallery(Widget *widget) {
 
 int fetchSports(SportsData *sports) {
   HTTPClient http;
-  http.begin("http://192.168.0.14:5001/sports");
+  http.begin(baseURL + "/sports");
 
   int result = 0;
   int httpCode = http.GET();
@@ -271,7 +273,7 @@ int fetchSports(SportsData *sports) {
 void fetchSportsIcons(SportsData *sports) {
   uint16_t combinedBuffer[2 * ICON_PIXELS];
   writeURLtoBitmap(
-    "http://192.168.0.14:5001/sports/icons", 
+    (baseURL + "/sports/icons").c_str(), 
     combinedBuffer,
     2 * ICON_PIXELS * sizeof(uint16_t)
   );
