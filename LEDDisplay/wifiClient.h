@@ -3,7 +3,7 @@
 
 #include "widgets.h"
 
-#define SERVER_IP "192.168.0.14"
+#define SERVER_IP "100.116.61.244"
 #define SERVER_PORT 5001
 #define GALLERY_SERVER_PORT 5002
 #define DEGREE_SYMBOL 0xF8

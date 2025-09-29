@@ -219,7 +219,6 @@ int fetchGallery(GalleryData *gallery) {
 void consumeGallery(Widget *widget) {
   Streamer *streamer = &widget->gallery.streamer;
 
-
   // Copy frame to display
   FrameSlot *ringBuffer = streamer->ringBuffer;
   uint16_t *frame = ringBuffer[streamer->out].frame;

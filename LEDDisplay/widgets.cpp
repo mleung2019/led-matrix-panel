@@ -33,8 +33,11 @@ void fetchTask(void *parameter) {
         }
         break;
       case GALLERY:
-        if (xSemaphoreTake(widget->gallery.streamer.filledSem, portMAX_DELAY) == pdTRUE) {
+        if (xSemaphoreTake(widget->gallery.streamer.filledSem, pdMS_TO_TICKS(500)) == pdTRUE) {
           consumeGallery(widget);
+        } else if (!widget->gallery.streamer.isStreaming) {
+          Serial.println("Timeout from consumer");
+          break;
         }
         xSemaphoreGive(widget->gallery.streamer.emptySem);
         break;

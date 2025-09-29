@@ -10,7 +10,7 @@ import pickle
 
 PANEL_LENGTH = 64
 
-FPS_CONST = 17
+FPS_CONST = 10
 DELAY_CONST = 1000 / FPS_CONST
 
 class Media:

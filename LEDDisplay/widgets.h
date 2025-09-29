@@ -18,8 +18,8 @@
 enum WidgetType {
   WEATHER,
   SPOTIFY,
-  GALLERY,
-  SPORTS
+  SPORTS,
+  GALLERY
 };
 
 struct Scroller {
