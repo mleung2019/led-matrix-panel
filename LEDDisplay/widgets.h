@@ -15,6 +15,7 @@
 #define ICON_PIXELS ICON_LENGTH*ICON_LENGTH
 
 /* ----------------------- ENUMS/STRUCTS ----------------------- */
+
 enum WidgetType {
   WEATHER,
   SPOTIFY,
@@ -48,7 +49,6 @@ struct Streamer {
   SemaphoreHandle_t filledSem = xSemaphoreCreateCounting(RING_SIZE, 0);
   SemaphoreHandle_t emptySem = xSemaphoreCreateCounting(RING_SIZE, RING_SIZE);
   uint16_t frame[PANEL_PIXELS];
-  TaskHandle_t streamTaskHandle = NULL;
   volatile bool isStreaming = false;
 };
 

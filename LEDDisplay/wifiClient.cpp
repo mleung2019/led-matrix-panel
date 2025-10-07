@@ -19,6 +19,10 @@ void connectWiFi(const char *ssid, const char *password) {
     }
   }
   Serial.println("Connected to WiFi");
+  long rssi = WiFi.RSSI();
+  Serial.print("RSSI: ");
+  Serial.print(rssi);
+  Serial.println(" dBm");
 }
 
 int fetchWeather(WeatherData *weather) {

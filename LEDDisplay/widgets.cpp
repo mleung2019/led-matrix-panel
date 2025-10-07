@@ -36,7 +36,6 @@ void fetchTask(void *parameter) {
         if (xSemaphoreTake(widget->gallery.streamer.filledSem, pdMS_TO_TICKS(500)) == pdTRUE) {
           consumeGallery(widget);
         } else if (!widget->gallery.streamer.isStreaming) {
-          Serial.println("Timeout from consumer");
           break;
         }
         xSemaphoreGive(widget->gallery.streamer.emptySem);
@@ -68,25 +67,59 @@ void galleryProducerTask(void *parameter) {
 void widgetControl(MatrixPanel_I2S_DMA *display, Widget *widget, WidgetType type) {
   // Handle widget change
   if (widget->type != type) {
-    if (widget->type == GALLERY) {
-      widget->gallery.streamer.isStreaming = false;
+    Serial.printf("Destructor called for old type %d -> new type %d\n", widget->type, type);
+    // Destructor
+    switch (widget->type) {
+      case WEATHER:
+        strcpy(widget->weather.city, "");
+        strcpy(widget->weather.time, "");
+        strcpy(widget->weather.currentTemp, "");
+        strcpy(widget->weather.hiloTemp, "");
+        memset(widget->weather.statusIcon, 0, ICON_PIXELS*2);
+        strcpy(widget->weather.statusDesc.msg, "");
+        strcpy(widget->weather.forecastStr.msg, "");
+        widget->weather.statusDesc.x = 0;
+        widget->weather.forecastStr.x = 0;
+        break;
+      case SPOTIFY:
+        memset(widget->spotify.cover, 0, BUFFER_SIZE);
+        strcpy(widget->spotify.trackInfo.msg, "");
+        break;
+      case GALLERY:
+        memset(widget->gallery.streamer.frame, 0, BUFFER_SIZE);
+        widget->gallery.streamer.isStreaming = false;
+        break;
+      case SPORTS:
+        strcpy(widget->sports.sportName, "");
+        strcpy(widget->sports.team1Name, "");
+        strcpy(widget->sports.team1Score, "");
+        strcpy(widget->sports.team2Name, "");
+        strcpy(widget->sports.team2Score, "");
+        memset(widget->sports.team1Icon, 0, ICON_PIXELS*2);
+        memset(widget->sports.team2Icon, 0, ICON_PIXELS*2);
+        strcpy(widget->sports.shortDetail.msg, "");
+        widget->sports.shortDetail.x = 0;
+        break;
     }
 
     widget->isInit = false;
     widget->type = type;
+    widget->updateInterval = 0;
 
+    if (widget->type == GALLERY) {
+      widget->gallery.streamer.isStreaming = true;
+    }
+  }
+
+  if (widget->isInit) {
     switch (widget->type) {
-      case WEATHER: 
-        widget->updateInterval = 5000; 
+      case WEATHER:
+        widget->updateInterval = 5000;
         break;
-      case SPOTIFY: 
-        widget->updateInterval = 2500; 
+      case SPOTIFY:
+        widget->updateInterval = 2500;
         break;
-      case GALLERY: 
-        widget->updateInterval = 0; 
-        widget->gallery.streamer.isStreaming = true;
-        break;
-      case SPORTS: 
+      case SPORTS:
         widget->updateInterval = 5000;
         break;
     }
