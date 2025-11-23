@@ -9,7 +9,7 @@ import process
 # Load environment variables from .env file
 load_dotenv()
 
-DUMMY_COVER_URL = None
+DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
 
 CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -32,28 +32,28 @@ def fetch_info():
     global current_cover
 
     current = sp.current_user_playing_track()
-
-    if current == None: return "No track has been played recently"
+    if current == None: 
+        current_cover = DUMMY_COVER_URL
+        return {"is_active": False}
 
     track_name = current["item"]["name"]
     artist_name = ", ".join(artist["name"] for artist in current["item"]["artists"])
     
     images = current["item"]["album"].get("images", [])
     cover_url = images[0]["url"] if images else DUMMY_COVER_URL
-
+    
     progress_ms = current["progress_ms"]
     duration_ms = current["item"]["duration_ms"]
 
-    is_local = current["item"]["is_local"]
-
     needs_cover = False
 
-    if cover_url != current_cover and not is_local:
+    if cover_url != current_cover:
         current_cover = cover_url
         needs_cover = True
 
     # Send relevant info
     data = {
+        "is_active": True,
         "track_name": track_name[:80],
         "artist_name": artist_name[:40],
         "needs_cover": needs_cover,
