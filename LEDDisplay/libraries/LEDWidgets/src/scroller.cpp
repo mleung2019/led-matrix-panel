@@ -11,8 +11,26 @@ bool updateScroller(Scroller *s) {
   return false;
 }
 
+// When scroller info changes, we need to determine if scrolling should
+// be active
+void resizeScroller(Scroller *s) {
+  int16_t x1, y1;
+  uint16_t w, h;
+  display->getTextBounds(s->msg, 0, 0, &x1, &y1, &w, &h);
+  
+  if (w > display->width()) {
+    s->active = true;
+  } else {
+    s->active = false;
+  }
+}
+
 // If active, scroll msg. If inactive, center msg
-void drawScroller(Scroller *s) {
+void drawScroller(Scroller *s, int y) {
+  updateScroller(s);
+  resizeScroller(s);
+  s->y = y;
+
   display->setTextColor(s->color);
   if (s->active) {
     int16_t x1, y1;
@@ -31,16 +49,9 @@ void drawScroller(Scroller *s) {
   display->setTextColor(0xFFFF);
 }
 
-// When scroller info changes, we need to determine if scrolling should
-// be active
-void resizeScroller(Scroller *s) {
-  int16_t x1, y1;
-  uint16_t w, h;
-  display->getTextBounds(s->msg, 0, 0, &x1, &y1, &w, &h);
-  
-  if (w > display->width()) {
-    s->active = true;
-  } else {
-    s->active = false;
-  }
+// Preserve scroller struct variables when updating text
+void updateText(Scroller *sDest, Scroller *sSrc) {
+  Scroller sTemp = *sSrc;
+  strcpy(sTemp.msg, sDest->msg);
+  *sDest = sTemp;
 }

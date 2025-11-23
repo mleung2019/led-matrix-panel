@@ -21,7 +21,8 @@ struct Scroller {
 };
 
 bool updateScroller(Scroller *s);
-void drawScroller(Scroller *s);
 void resizeScroller(Scroller *s);
+void drawScroller(Scroller *s, int y);
+void updateText(Scroller *sDest, Scroller *sSrc);
 
 #endif

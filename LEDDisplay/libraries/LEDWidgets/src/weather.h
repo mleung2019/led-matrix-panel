@@ -5,7 +5,7 @@
 
 struct WeatherData {
   // Location
-  char city[32];
+  Scroller city;
   char time[16];
   // Temperature
   char currentTemp[8];

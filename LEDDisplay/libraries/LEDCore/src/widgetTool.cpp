@@ -1,9 +1,6 @@
 #include "widgetTool.h"
 
-void drawCenteredText( 
-  const char* msg, int y, 
-  int width, int offset
-) {
+void drawCenteredText(const char *msg, int y, int width, int offset) {
   int16_t x1, y1;
   uint16_t w, h;
   display->getTextBounds(msg, 0, 0, &x1, &y1, &w, &h);

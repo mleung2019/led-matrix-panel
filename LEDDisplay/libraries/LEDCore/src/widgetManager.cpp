@@ -1,19 +1,19 @@
 #include "widgetManager.h"
 
 void appTask(void *parameters) {
-  int type = 0;
   Widget *w = (Widget *) parameters;
-
-  bool isPressed;
-
+  
+  int type = 0;
   initWidget(w, (WidgetType) type);
+  
+  bool isPressed;
   for (;;) {
     // Switch widget on button press
     if (xQueueReceive(buttonQueue, &isPressed, portMAX_DELAY)) {
       if (isPressed) {
         type = (type + 1) % 3;
         switchToWidget(w, (WidgetType) type);
-      }      
+      }
     }
   }
 }
@@ -28,17 +28,14 @@ void initWidget(Widget *w, WidgetType type) {
     case WEATHER:
       w->weather = new WeatherData{};
       w->updateInterval = 5000;
-      Serial.println("Create weather");
       break;
     case SPOTIFY:
       w->spotify = new SpotifyData{};
       w->updateInterval = 2500;
-      Serial.println("Create spotify");
       break;
     case SPORTS:
       w->sports = new SportsData{};
       w->updateInterval = 5000;
-      Serial.println("Create sports");
       break;
   }
 
@@ -52,19 +49,17 @@ void destroyWidget(Widget *w) {
     case WEATHER:
       delete w->weather;
       w->weather = nullptr;
-      Serial.println("Delete weather");
       break;
     case SPOTIFY:
       delete w->spotify;
       w->spotify = nullptr;
-      Serial.println("Delete spotify");
       break;
     case SPORTS:
       delete w->sports;
       w->sports = nullptr;
-      Serial.println("Delete sports");
       break;
   }
+
   w->isInit = false;
 }
 

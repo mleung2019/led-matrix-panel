@@ -96,7 +96,7 @@ async def fetch_info():
 
     data = {
         "time_str": time_str[:-2],
-        "city": city[:20],
+        "city": city[:120],
         "curr_temp": round(current_temperature_2m),
         "high_temp": round(daily_temperature_2m_max[0]),
         "low_temp": round(daily_temperature_2m_min[0]),

@@ -4,4 +4,9 @@
 *.env
 *.DS_STORE
 *.cache
+
 LEDDisplay/config.h
+LEDDisplay/libraries/*
+!LEDDisplay/libraries/LEDCore/
+!LEDDisplay/libraries/LEDWidgets/
+!LEDDisplay/libraries/ESP32_HUB75_LED_CUSTOM/

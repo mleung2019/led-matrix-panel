@@ -9,10 +9,11 @@
 extern volatile bool networkCancel;
 
 void connectWiFi(const char *ssid, const char *password);
+void initLocation();
 int writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength);
 
+/* ----------------------- WIDGET HELPER FUNCTIONS ----------------------- */
 int fetchWidget(Widget *w, void *data);
-
 int parseWeatherIcon(WeatherData *wd);
 int parseSpotifyCover(SpotifyData *sd);
 int parseSportsIcons(SportsData *pd);

@@ -8,14 +8,14 @@ void buttonTask(void *parameters) {
 
   for (;;) {
     bool current = digitalRead(BUTTON_PIN);
+    
     if (current == LOW && lastState == HIGH) {
-      // Button pressed
       isPressed = true;
-
       xQueueSend(buttonQueue, &isPressed, 0);
-      Serial.println("button press");
+
       vTaskDelay(pdMS_TO_TICKS(250)); // debounce
     }
+
     lastState = current;
     vTaskDelay(pdMS_TO_TICKS(10));
   }

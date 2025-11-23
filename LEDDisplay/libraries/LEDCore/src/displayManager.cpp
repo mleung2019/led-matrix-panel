@@ -2,7 +2,6 @@
 
 void displayTask(void *parameters) {
   Widget *w = (Widget *) parameters;
-
   TickType_t lastWakeTime = xTaskGetTickCount();
 
   for (;;) {
