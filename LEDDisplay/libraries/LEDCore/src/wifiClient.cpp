@@ -6,7 +6,7 @@
 #include "wifiClient.h"
 
 String baseURL = String("http://") + SERVER_IP + ":" + SERVER_PORT;
-StaticJsonDocument<1024> doc;
+String locationBody;
 
 void connectWiFi(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
@@ -27,19 +27,43 @@ void connectWiFi(const char *ssid, const char *password) {
   Serial.println(" dBm");
 }
 
+int initLocation() {
+  HTTPClient http;
+  http.setTimeout(5000);
+  
+  http.begin("http://ipinfo.io/json");
+  int httpCode = http.GET();
+  if (httpCode <= 0) { http.end(); return 1; }
+
+  locationBody = http.getString();
+
+  http.end();
+  return 0;
+}
+
 int fetchWidget(Widget *w, void *data) {
   HTTPClient http;
   http.setTimeout(5000);
+  int httpCode = 0;
 
   WidgetType type = w->type;
   switch (type) {
-    case WEATHER: http.begin(baseURL + "/weather"); break;
-    case SPOTIFY: http.begin(baseURL + "/spotify"); break;
-    case SPORTS: http.begin(baseURL + "/sports"); break;
+    case WEATHER: 
+      http.begin(baseURL + "/weather"); 
+      http.addHeader("Content-Type", "application/json");
+      http.setReuse(true);
+      httpCode = http.POST(locationBody);
+      break;
+    case SPOTIFY: 
+      http.begin(baseURL + "/spotify"); 
+      httpCode = http.GET();
+      break;
+    case SPORTS: 
+      http.begin(baseURL + "/sports"); 
+      httpCode = http.GET();
+      break;
   }
 
-  int result = 0;
-  int httpCode = http.GET();
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   String payload = http.getString();
@@ -123,7 +147,7 @@ int parseSportsIcons(SportsData *pd) {
     combinedBuffer,
     2 * ICON_PIXELS * sizeof(uint16_t)
   );
-  
+
   if (!imgError) {
     memcpy(
       pd->team1Icon, 

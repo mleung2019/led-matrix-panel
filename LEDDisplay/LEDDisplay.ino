@@ -40,6 +40,7 @@ void setup() {
   // WiFi
   Serial.println("Attempting to connect to WiFi");
   connectWiFi(ssid, password);
+  initLocation();
 
   // Matrix panel
   Serial.println("Starting display");

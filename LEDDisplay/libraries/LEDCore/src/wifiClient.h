@@ -9,7 +9,7 @@
 extern volatile bool networkCancel;
 
 void connectWiFi(const char *ssid, const char *password);
-void initLocation();
+int initLocation();
 int writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength);
 
 /* ----------------------- WIDGET HELPER FUNCTIONS ----------------------- */

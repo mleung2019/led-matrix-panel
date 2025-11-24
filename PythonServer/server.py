@@ -14,7 +14,7 @@ app = Flask(__name__)
 def home():
     return Response("hello")
 
-@app.route("/weather")
+@app.route("/weather", methods=["POST"])
 def get_weather():
     return asyncio.run(weather.fetch_info())
 

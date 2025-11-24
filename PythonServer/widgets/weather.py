@@ -1,14 +1,9 @@
-import requests
+from flask import request
+import pytz
 from datetime import datetime, timedelta
 import json
 
 import openmeteo_requests
-
-def get_coords():
-    resp = requests.get("http://ip-api.com/json/")
-    data = resp.json()
-    lat, lon, city, timezone = data["lat"], data["lon"], data["city"], data["timezone"]
-    return lat, lon, city, timezone
 
 def get_status(weather_code, is_day):
     wmo_code = int(weather_code)
@@ -30,12 +25,17 @@ current_icon = None
 async def fetch_info():
     global current_icon
 
-    # Time
-    now = datetime.now()
-    time_str = now.strftime("%-I:%M%p")
+    data = request.json
 
     # Location
-    lat, lon, city, timezone = get_coords()
+    lat, lon = data["loc"].split(",")
+    city = data["city"]
+    timezone = data["timezone"]
+
+    # Time
+    tz = pytz.timezone(timezone)
+    now = datetime.now(tz)
+    time_str = now.strftime("%-I:%M%p")
 
     # Weather
     openmeteo = openmeteo_requests.Client()

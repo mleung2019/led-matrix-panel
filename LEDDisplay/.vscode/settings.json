@@ -12,6 +12,11 @@
     "unordered_map": "cpp",
     "print": "cpp",
     "stdexcept": "cpp",
-    "__locale": "cpp"
+    "__locale": "cpp",
+    "__tree": "cpp",
+    "forward_list": "cpp",
+    "map": "cpp",
+    "regex": "cpp",
+    "set": "cpp"
   }
 }
