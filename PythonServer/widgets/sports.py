@@ -41,7 +41,8 @@ def fetch_info():
             # 1 = scheduled
             # 2 = in progress
             # 3 = final
-            if id == "2":
+            # 23 = halftime (?)
+            if id == "2" or id == "23":
                 any_active = True
 
             game_data = {
@@ -58,7 +59,7 @@ def fetch_info():
             sports_log.append(game_data)
     
     if any_active:
-        sports_log = [game for game in sports_log if game["status"] == "2"]
+        sports_log = [game for game in sports_log if game["status"] == "2" or game["status"] == "23"]
 
 def fetch_game():
     global sports_log, idx
