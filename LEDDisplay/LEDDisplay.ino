@@ -1,14 +1,8 @@
-#include "config.h"
-
 #include <wifiClient.h>
 #include <inputManager.h>
 #include <widgetManager.h>
 #include <displayManager.h>
 #include <networkManager.h>
-
-/*--------------------- WiFi CONFIG -------------------------*/
-const char *ssid = WIFI_SSID;
-const char *password = WIFI_PASS;
 
 /*--------------------- MATRIX PANEL CONFIG -------------------------*/
 #define PANEL_RES_X 64  // Number of pixels wide of each INDIVIDUAL panel module.
@@ -39,7 +33,7 @@ void setup() {
 
   // WiFi
   Serial.println("Attempting to connect to WiFi");
-  connectWiFi(ssid, password);
+  connectWiFi();
   initLocation();
 
   // Matrix panel

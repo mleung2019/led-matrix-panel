@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <WiFiManager.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
@@ -8,18 +9,16 @@
 String baseURL = String("http://") + SERVER_IP + ":" + SERVER_PORT;
 String locationBody;
 
-void connectWiFi(const char *ssid, const char *password) {
-  WiFi.begin(ssid, password);
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(200);
-    if (millis() - start > 15000) {
-      // avoid hanging indefinitely; try again
-      Serial.println("WiFi connect timeout, retrying...");
-      start = millis();
-      WiFi.begin(ssid, password);
-    }
+void connectWiFi() {
+  WiFiManager wm;
+  wm.setConfigPortalTimeout(180);
+
+  bool res = wm.autoConnect("ESP32-LED-DISPLAY");
+  if(!res) {
+    Serial.println("Failed to connect");
+    ESP.restart();
   }
+
   Serial.println("Connected to WiFi");
   long rssi = WiFi.RSSI();
   Serial.print("RSSI: ");
