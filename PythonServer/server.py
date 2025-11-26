@@ -1,12 +1,8 @@
-import threading
+from threading import Thread
 import asyncio
 from flask import Flask, Response
 
 from widgets import weather, spotify, gallery, sports
-
-# Load gallery and server
-# gallery.load_gallery()
-# server_thread = threading.Thread(target=gallery.run_server, daemon=True).start()
 
 app = Flask(__name__)
 
@@ -38,7 +34,12 @@ def get_cover():
 
 @app.route("/sports")
 def get_sports():
-    return sports.fetch_game()
+    game, trigger_refresh = sports.fetch_game()
+
+    if trigger_refresh:
+        Thread(target=sports.fetch_info, daemon=True).start()
+
+    return game
 
 @app.route("/sports/icons")
 def get_icons():

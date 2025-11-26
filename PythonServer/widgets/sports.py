@@ -1,4 +1,5 @@
 import requests
+import threading
 
 import process
 
@@ -17,66 +18,87 @@ SPORT_APIS = [
     )
 ]
 
+# 1 = scheduled
+# 2 = in progress
+# 3 = final
+# 23 = halftime (?)
+INACTIVE_IDS = ["1", "3"]
+
+# Don't rewrite sports info while fetching
+sports_lock = threading.RLock()
+
 sports_log = []
-idx = -1
+idx = -2
 
 def fetch_info():
     global sports_log
 
-    sports_log = []
-    any_active = False
+    with sports_lock:
+        sports_log = []
+        any_active = False
 
-    for (sport_name, api) in SPORT_APIS:
-        response = requests.get(api)
-        data = response.json()
+        print("Fetching sports info...")
+        for (sport_name, api) in SPORT_APIS:
+            response = requests.get(api)
+            data = response.json()
 
-        for event in data["events"]:
-            status = event["status"]["type"]
-            id = status["id"]
-            teams = event["competitions"][0]["competitors"]
-            team1 = teams[0]
-            team2 = teams[1]
-            short_detail = status["shortDetail"]
+            for event in data["events"]:
+                status = event["status"]["type"]
+                id = status["id"]
+                teams = event["competitions"][0]["competitors"]
+                team1 = teams[0]
+                team2 = teams[1]
+                short_detail = status["shortDetail"]
 
-            # 1 = scheduled
-            # 2 = in progress
-            # 3 = final
-            # 23 = halftime (?)
-            if id == "2" or id == "23":
-                any_active = True
+                if id not in INACTIVE_IDS:
+                    any_active = True
 
-            game_data = {
-                "status": id,
-                "sport_name": sport_name,
-                "team1_name": team1["team"]["abbreviation"],
-                "team1_score": team1["score"],
-                "team1_icon": team1["team"]["logo"],
-                "team2_name": team2["team"]["abbreviation"],
-                "team2_score": team2["score"],
-                "team2_icon": team2["team"]["logo"],
-                "short_detail": short_detail.replace(" - ", "-")
-            }
-            sports_log.append(game_data)
-    
-    if any_active:
-        sports_log = [game for game in sports_log if game["status"] == "2" or game["status"] == "23"]
+                game_data = {
+                    "status": id,
+                    "sport_name": sport_name,
+                    "team1_name": team1["team"]["abbreviation"],
+                    "team1_score": team1["score"],
+                    "team1_icon": team1["team"]["logo"],
+                    "team2_name": team2["team"]["abbreviation"],
+                    "team2_score": team2["score"],
+                    "team2_icon": team2["team"]["logo"],
+                    "short_detail": short_detail.replace(" - ", "-")
+                }
+                sports_log.append(game_data)
+        
+        if any_active:
+            sports_log = [game for game in sports_log if game["status"] not in INACTIVE_IDS]
+        
+        print("Number of games to display: " + str(len(sports_log)))
 
 def fetch_game():
     global sports_log, idx
 
-    if idx == -1 or idx == len(sports_log)-1:
-        print("Fetching new scores")
-        fetch_info()
-        idx = 0
-    else:
-        idx = (idx + 1) % len(sports_log)
+    with sports_lock:
+        # Initial load
+        if idx == -2:
+            fetch_info()
+            idx = -1
 
-    return sports_log[idx]
+        idx += 1
+
+        if idx == len(sports_log) - 1:
+            game = sports_log[idx]
+            idx = -1
+            return game, True
+
+        if not sports_log:
+            print("No sports available!")
+            return None, False
+
+        return sports_log[idx], False
 
 def fetch_team_icons():
     global sports_log, idx
 
-    icons = sports_log[idx]
+    with sports_lock:
+        icons = sports_log[idx]
+    
     return process.parse_url(
         icons["team1_icon"], (24, 24)
     ) + process.parse_url(
