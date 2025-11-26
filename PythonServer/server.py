@@ -5,8 +5,8 @@ from flask import Flask, Response
 from widgets import weather, spotify, gallery, sports
 
 # Load gallery and server
-gallery.load_gallery()
-server_thread = threading.Thread(target=gallery.run_server, daemon=True).start()
+# gallery.load_gallery()
+# server_thread = threading.Thread(target=gallery.run_server, daemon=True).start()
 
 app = Flask(__name__)
 
