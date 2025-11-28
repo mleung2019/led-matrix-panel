@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, Response, session, redirect
+from werkzeug.middleware.proxy_fix import ProxyFix
 import asyncio
 from threading import Thread
 
@@ -8,6 +9,12 @@ from widgets import weather, spotify, gallery, sports
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+app.config.update(
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_HTTPONLY=True,
+)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 @app.route("/")
 def home():
