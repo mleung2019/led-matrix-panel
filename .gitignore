@@ -1,6 +1,7 @@
+/PythonServer/.venv
 /PythonServer/__pycache__
 /PythonServer/widgets/__pycache__
-/PythonServer/.venv
+/PythonServer/widgets/spotify-token-info.json
 *.env
 *.DS_STORE
 *.cache

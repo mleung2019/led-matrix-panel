@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import json
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -13,17 +14,27 @@ DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-m
 
 CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+
+TOKEN_INFO = None
+with open('/etc/secrets/spotify-token-info.json', 'r') as f:
+    TOKEN_INFO = json.load(f)
+
 SPOTIPY_REDIRECT_URI = "https://multi-use-led-matrix-64x64.onrender.com/spotify/callback"
 
 scope = "user-read-currently-playing"
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+auth_manager=SpotifyOAuth(
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET,
     redirect_uri=SPOTIPY_REDIRECT_URI,
     scope=scope,
-    open_browser=False
-))
+    open_browser=False,
+    cache_handler=spotipy.MemoryCacheHandler(
+        token_info=TOKEN_INFO
+    )
+)
+
+sp = spotipy.Spotify(auth_manager)
 
 # We don't want to process the Spotify cover for a song over and over again.
 # Detect when the cover changes by keeping track of the old cover url.
