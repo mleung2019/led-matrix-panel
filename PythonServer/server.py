@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, Response, session, redirect
+from flask import Flask, Response, request, session, redirect
 from werkzeug.middleware.proxy_fix import ProxyFix
 import asyncio
 from threading import Thread
@@ -10,7 +10,7 @@ from widgets import weather, spotify, gallery, sports
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.config.update(
-    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_SAMESITE="None",
     SESSION_COOKIE_HTTPONLY=True,
 )
@@ -40,8 +40,12 @@ def spotify_login():
 @app.route("/spotify/callback")
 def spotify_callback():
     auth_manager = spotify.get_auth_manager()
-    token_info = auth_manager.get_cached_token()
+    code = request.args.get("code")
+    if not code:
+        return "Missing code", 400
+    token_info = auth_manager.get_access_token(code)
     session["token_info"] = token_info
+
     return redirect("/spotify")
 
 @app.route("/spotify")
