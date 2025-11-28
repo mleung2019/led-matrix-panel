@@ -6,7 +6,7 @@
 #include "networkManager.h"
 #include "wifiClient.h"
 
-String baseURL = String("http://") + SERVER_IP + ":" + SERVER_PORT;
+String baseURL = String("http://") + SERVER_IP;
 String locationBody;
 
 void connectWiFi() {

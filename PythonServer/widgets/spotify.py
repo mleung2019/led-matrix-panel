@@ -21,7 +21,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET,
     redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope=scope
+    scope=scope,
+    open_browser=False
 ))
 
 # We don't want to process the Spotify cover for a song over and over again.
