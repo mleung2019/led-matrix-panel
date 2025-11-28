@@ -24,7 +24,7 @@ SPORT_APIS = [
 # 23 = halftime (?)
 INACTIVE_IDS = ["1", "3"]
 
-# Don't rewrite sports info while fetching
+# Don't rewrite sports info while sending request at the same time
 sports_lock = threading.RLock()
 
 sports_log = []
