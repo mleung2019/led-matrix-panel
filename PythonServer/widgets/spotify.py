@@ -13,7 +13,7 @@ DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-m
 
 CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = "http://127.0.0.1:5001/spotify/callback"
+SPOTIPY_REDIRECT_URI = "https://multi-use-led-matrix-64x64.onrender.com/spotify/callback"
 
 scope = "user-read-currently-playing"
 
