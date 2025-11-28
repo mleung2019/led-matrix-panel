@@ -1,10 +1,13 @@
-from threading import Thread
+import os
+
+from flask import Flask, Response, session, redirect
 import asyncio
-from flask import Flask, Response
+from threading import Thread
 
 from widgets import weather, spotify, gallery, sports
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 @app.route("/")
 def home():
@@ -20,6 +23,19 @@ def get_icon():
         weather.fetch_icon(),
         mimetype="application/octet-stream"
     )
+
+@app.route("/spotify/login")
+def spotify_login():
+    auth_manager = spotify.get_auth_manager()
+    auth_url = auth_manager.get_authorize_url()
+    return redirect(auth_url)
+
+@app.route("/spotify/callback")
+def spotify_callback():
+    auth_manager = spotify.get_auth_manager()
+    token_info = auth_manager.get_cached_token()
+    session["token_info"] = token_info
+    return redirect("/spotify")
 
 @app.route("/spotify")
 def get_track():

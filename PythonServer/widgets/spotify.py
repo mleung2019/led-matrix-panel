@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
-import json
 
+from flask import session, redirect
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -10,31 +10,30 @@ import process
 # Load environment variables from .env file
 load_dotenv()
 
-DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
-
 CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+SCOPE = "user-read-currently-playing"
 
-TOKEN_INFO = None
-with open('/etc/secrets/spotify-token-info.json', 'r') as f:
-    TOKEN_INFO = json.load(f)
+DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
 
-SPOTIPY_REDIRECT_URI = "https://multi-use-led-matrix-64x64.onrender.com/spotify/callback"
-
-scope = "user-read-currently-playing"
-
-auth_manager=SpotifyOAuth(
-    client_id=CLIENT_ID,
-    client_secret=CLIENT_SECRET,
-    redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope=scope,
-    open_browser=False,
-    cache_handler=spotipy.MemoryCacheHandler(
-        token_info=TOKEN_INFO
+def get_auth_manager():
+    return SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=SCOPE,
+        open_browser=False,
+        cache_path=None
     )
-)
 
-sp = spotipy.Spotify(auth_manager)
+def get_spotify_client():
+    token_info = session.get("token_info")
+    
+    if not token_info:
+        return None
+
+    return spotipy.Spotify(auth=token_info["access_token"])
 
 # We don't want to process the Spotify cover for a song over and over again.
 # Detect when the cover changes by keeping track of the old cover url.
@@ -43,6 +42,12 @@ current_cover = None
 def fetch_info():
     global current_cover
 
+    # Authenticate if necessary
+    sp = get_spotify_client()
+    if not sp:
+        return redirect("/spotify/login")
+
+    # Get currently playing track
     current = sp.current_user_playing_track()
     if current == None: 
         current_cover = DUMMY_COVER_URL
