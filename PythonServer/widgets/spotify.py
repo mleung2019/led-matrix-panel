@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
+import json
 
-from flask import session, redirect
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -14,8 +14,20 @@ CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 SCOPE = "user-read-currently-playing"
+TOKEN_FILE = "./widgets/spotify_token.json"
 
 DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
+
+def load_token():
+    try:
+        with open(TOKEN_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return None
+
+def save_token(token_info):
+    with open(TOKEN_FILE, "w") as f:
+        json.dump(token_info, f)
 
 def get_auth_manager():
     return SpotifyOAuth(
@@ -23,12 +35,12 @@ def get_auth_manager():
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         scope=SCOPE,
+        cache_path=None,
         open_browser=False,
-        cache_path=None
     )
 
 def get_spotify_client():
-    token_info = session.get("token_info")
+    token_info = load_token()
     
     if not token_info:
         return None
@@ -37,7 +49,7 @@ def get_spotify_client():
 
     if auth_manager.is_token_expired(token_info):
         token_info = auth_manager.refresh_access_token(token_info["refresh_token"])
-        session["token_info"] = token_info
+        save_token(token_info)
 
     return spotipy.Spotify(auth=token_info["access_token"])
 
@@ -51,14 +63,13 @@ def fetch_info():
     # Authenticate if necessary
     sp = get_spotify_client()
     if not sp:
-        return redirect("/spotify/login")
+        return None
 
     # Get currently playing track
     try:
         current = sp.current_user_playing_track()
-    except spotipy.exceptions.SpotifyException:
-        session.pop("token_info", None)
-        return redirect("/spotify/login")
+    except:
+        return None
     
     if current == None: 
         current_cover = DUMMY_COVER_URL

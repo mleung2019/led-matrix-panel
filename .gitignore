@@ -5,10 +5,10 @@
 /PythonServer/.venv
 /PythonServer/__pycache__
 /PythonServer/widgets/__pycache__
+PythonServer/widgets/spotify_token.json
 
 LEDDisplay/libraries/*
 !LEDDisplay/libraries/LEDCore/
 LEDDisplay/libraries/LEDCore/src/config.h
 !LEDDisplay/libraries/LEDWidgets/
 !LEDDisplay/libraries/ESP32_HUB75_LED_CUSTOM/
-

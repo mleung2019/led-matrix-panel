@@ -45,13 +45,18 @@ def spotify_callback():
         return "Missing code", 400
     
     token_info = auth_manager.get_access_token(code)
-    session["token_info"] = token_info
+    spotify.save_token(token_info)
 
     return redirect("/spotify")
 
 @app.route("/spotify")
 def get_track():
-    return spotify.fetch_info()
+    data = spotify.fetch_info()
+
+    if data is None:
+        return redirect("/spotify/login")
+    
+    return data
 
 @app.route("/spotify/cover")
 def get_cover():
