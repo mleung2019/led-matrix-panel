@@ -43,6 +43,7 @@ def spotify_callback():
     code = request.args.get("code")
     if not code:
         return "Missing code", 400
+    
     token_info = auth_manager.get_access_token(code)
     session["token_info"] = token_info
 

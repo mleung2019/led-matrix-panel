@@ -33,6 +33,12 @@ def get_spotify_client():
     if not token_info:
         return None
 
+    auth_manager = get_auth_manager()
+
+    if auth_manager.is_token_expired(token_info):
+        token_info = auth_manager.refresh_access_token(token_info["refresh_token"])
+        session["token_info"] = token_info
+
     return spotipy.Spotify(auth=token_info["access_token"])
 
 # We don't want to process the Spotify cover for a song over and over again.
@@ -48,7 +54,12 @@ def fetch_info():
         return redirect("/spotify/login")
 
     # Get currently playing track
-    current = sp.current_user_playing_track()
+    try:
+        current = sp.current_user_playing_track()
+    except spotipy.exceptions.SpotifyException:
+        session.pop("token_info", None)
+        return redirect("/spotify/login")
+    
     if current == None: 
         current_cover = DUMMY_COVER_URL
         return {"is_active": False}
