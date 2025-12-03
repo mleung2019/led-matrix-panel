@@ -26,10 +26,10 @@ def get_weather():
 
 @app.route("/weather/icon")
 def get_icon():
-    return Response(
-        weather.fetch_icon(),
-        mimetype="application/octet-stream"
-    )
+    data = weather.fetch_icon()
+    resp = Response(data, mimetype="application/octet-stream")
+    resp.headers["Content-Length"] = str(len(data))
+    return resp
 
 @app.route("/spotify/login")
 def spotify_login():
@@ -60,10 +60,10 @@ def get_track():
 
 @app.route("/spotify/cover")
 def get_cover():
-    return Response(
-        spotify.fetch_cover(),
-        mimetype="application/octet-stream"
-    )
+    data = spotify.fetch_cover()
+    resp = Response(data, mimetype="application/octet-stream")
+    resp.headers["Content-Length"] = str(len(data))
+    return resp
 
 @app.route("/sports")
 def get_sports():
@@ -76,10 +76,10 @@ def get_sports():
 
 @app.route("/sports/icons")
 def get_icons():
-    return Response(
-        sports.fetch_team_icons(),
-        mimetype="application/octet-stream"
-    )
+    data = sports.fetch_team_icons()  # bytes
+    resp = Response(data, mimetype="application/octet-stream")
+    resp.headers["Content-Length"] = str(len(data))
+    return resp
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")

@@ -1,17 +1,20 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
 #include "networkManager.h"
 #include "wifiClient.h"
 
-String baseURL = String("http://") + SERVER_IP;
+String baseURL = String("https://") + SERVER_IP;
 String locationBody;
 
 void connectWiFi() {
   WiFiManager wm;
   wm.setConfigPortalTimeout(180);
+  WiFiClientSecure wc;
+  wc.setInsecure();
 
   bool res = wm.autoConnect("ESP32-LED-DISPLAY");
   if(!res) {
@@ -62,10 +65,11 @@ int fetchWidget(Widget *w, void *data) {
       httpCode = http.GET();
       break;
   }
-
+  Serial.printf("Fetching %d data: %d\n", int(type), httpCode);
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   String payload = http.getString();
+  Serial.println(payload);
   StaticJsonDocument<1024> doc;
   if (deserializeJson(doc, payload)) {
     http.end();
@@ -90,6 +94,7 @@ int fetchWidget(Widget *w, void *data) {
         break;
   }
   http.end();
+  Serial.printf("imgError: %d\n", imgError);
   return imgError;
 }
 
@@ -98,6 +103,7 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   http.begin(url);
 
   int httpCode = http.GET();
+  Serial.printf("httpCode: %d\n", httpCode);
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   WiFiClient *stream = http.getStreamPtr();
