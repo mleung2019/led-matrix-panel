@@ -1,20 +1,17 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
-#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
 #include "networkManager.h"
 #include "wifiClient.h"
 
-String baseURL = String("https://") + SERVER_IP;
+String baseURL = String("http://") + SERVER_IP;
 String locationBody;
 
-void connectWiFi() {
+void connectWiFi() {  
   WiFiManager wm;
   wm.setConfigPortalTimeout(180);
-  WiFiClientSecure wc;
-  wc.setInsecure();
 
   bool res = wm.autoConnect("ESP32-LED-DISPLAY");
   if(!res) {
@@ -103,7 +100,16 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   http.begin(url);
 
   int httpCode = http.GET();
-  Serial.printf("httpCode: %d\n", httpCode);
+
+  if (httpCode > 0) {
+      Serial.println(httpCode);
+      for (int i = 0; i < http.headers(); i++) {
+          Serial.printf("%s: %s\n", http.headerName(i).c_str(), http.header(i).c_str());
+      }
+  } else {
+      Serial.printf("HTTP GET failed: %s\n", http.errorToString(httpCode).c_str());
+  }
+
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   WiFiClient *stream = http.getStreamPtr();
