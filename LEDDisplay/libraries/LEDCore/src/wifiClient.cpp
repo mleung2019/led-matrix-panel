@@ -62,11 +62,10 @@ int fetchWidget(Widget *w, void *data) {
       httpCode = http.GET();
       break;
   }
-  Serial.printf("Fetching %d data: %d\n", int(type), httpCode);
+
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   String payload = http.getString();
-  Serial.println(payload);
   StaticJsonDocument<1024> doc;
   if (deserializeJson(doc, payload)) {
     http.end();
@@ -91,7 +90,6 @@ int fetchWidget(Widget *w, void *data) {
         break;
   }
   http.end();
-  Serial.printf("imgError: %d\n", imgError);
   return imgError;
 }
 
@@ -100,15 +98,6 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   http.begin(url);
 
   int httpCode = http.GET();
-
-  if (httpCode > 0) {
-      Serial.println(httpCode);
-      for (int i = 0; i < http.headers(); i++) {
-          Serial.printf("%s: %s\n", http.headerName(i).c_str(), http.header(i).c_str());
-      }
-  } else {
-      Serial.printf("HTTP GET failed: %s\n", http.errorToString(httpCode).c_str());
-  }
 
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
