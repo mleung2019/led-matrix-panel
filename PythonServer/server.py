@@ -20,7 +20,11 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 def home():
     return Response("hello")
 
-@app.route("/weather", methods=["POST"])
+@app.route("/location", methods=["POST"])
+def update_location():
+    return weather.update_location()
+
+@app.route("/weather")
 def get_weather():
     return asyncio.run(weather.fetch_info())
 

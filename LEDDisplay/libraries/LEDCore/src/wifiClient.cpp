@@ -7,7 +7,6 @@
 #include "wifiClient.h"
 
 String baseURL = String("http://") + SERVER_IP;
-String locationBody;
 
 void connectWiFi() {  
   WiFiManager wm;
@@ -34,7 +33,11 @@ int initLocation() {
   int httpCode = http.GET();
   if (httpCode <= 0) { http.end(); return 1; }
 
-  locationBody = http.getString();
+  String locationBody = http.getString();
+
+  http.begin(baseURL + "/location");
+  http.addHeader("Content-Type", "application/json");
+  httpCode = http.POST(locationBody);
 
   http.end();
   return 0;
@@ -49,9 +52,7 @@ int fetchWidget(Widget *w, void *data) {
   switch (type) {
     case WEATHER: 
       http.begin(baseURL + "/weather"); 
-      http.addHeader("Content-Type", "application/json");
-      http.setReuse(true);
-      httpCode = http.POST(locationBody);
+      httpCode = http.GET();
       break;
     case SPOTIFY: 
       http.begin(baseURL + "/spotify"); 
@@ -63,11 +64,22 @@ int fetchWidget(Widget *w, void *data) {
       break;
   }
 
+  if (httpCode != 200) {
+    Serial.printf(
+      "(%d) [HTTP] result code: %d (%s)\n",
+      (int) type, 
+      httpCode,
+      http.errorToString(httpCode).c_str()
+    );
+  }
+
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 
   String payload = http.getString();
   StaticJsonDocument<1024> doc;
   if (deserializeJson(doc, payload)) {
+    Serial.println("Failed JSON parse:");
+    Serial.println(payload);
     http.end();
     // Parsing error
     return 2;

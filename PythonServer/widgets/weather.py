@@ -21,19 +21,29 @@ def hours_ahead(start_time_str, hours=5):
     return results
 
 current_icon = None
+location = {
+    "lat": None,
+    "lon": None,
+    "city": None,
+    "timezone": None
+}
+
+def update_location():
+    data = request.json
+    location["lat"], location["lon"] = data["loc"].split(",")
+    location["city"] = data["city"]
+    location["timezone"] = data["timezone"]
+    return "Location updated", 200
 
 async def fetch_info():
     global current_icon
+    global location
 
-    data = request.json
-
-    # Location
-    lat, lon = data["loc"].split(",")
-    city = data["city"]
-    timezone = data["timezone"]
+    if location["lat"] is None or location["lon"] is None:
+        return "Location not set", 400
 
     # Time
-    tz = pytz.timezone(timezone)
+    tz = pytz.timezone(location["timezone"])
     now = datetime.now(tz)
     time_str = now.strftime("%-I:%M%p")
 
@@ -41,9 +51,9 @@ async def fetch_info():
     openmeteo = openmeteo_requests.Client()
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
-        "latitude": lat,
-        "longitude": lon,
-        "timezone": timezone,
+        "latitude": location["lat"],
+        "longitude": location["lon"],
+        "timezone": location["timezone"],
         "daily": ["temperature_2m_max", "temperature_2m_min"],
         "hourly": ["temperature_2m", "weather_code", "is_day"],
     	"current": ["is_day", "weather_code", "temperature_2m"],
@@ -96,7 +106,7 @@ async def fetch_info():
 
     data = {
         "time_str": time_str[:-2],
-        "city": city[:120],
+        "city": location["city"][:120],
         "curr_temp": round(current_temperature_2m),
         "high_temp": round(daily_temperature_2m_max[0]),
         "low_temp": round(daily_temperature_2m_min[0]),
