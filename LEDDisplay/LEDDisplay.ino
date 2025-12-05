@@ -1,4 +1,4 @@
-#include <wifiClient.h>
+#include <networkClient.h>
 #include <inputManager.h>
 #include <widgetManager.h>
 #include <displayManager.h>

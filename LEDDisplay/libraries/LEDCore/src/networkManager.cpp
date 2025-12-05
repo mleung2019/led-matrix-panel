@@ -1,4 +1,4 @@
-#include "wifiClient.h"
+#include "networkClient.h"
 #include "networkManager.h"
 
 volatile bool networkCancel = false;

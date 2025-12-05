@@ -1,5 +1,7 @@
-#ifndef WIFICLIENT_H
-#define WIFICLIENT_H
+#ifndef NETWORKCLIENT_H
+#define NETWORKCLIENT_H
+
+#include <HTTPClient.h>
 
 #include "config.h"
 #include "widgetManager.h"

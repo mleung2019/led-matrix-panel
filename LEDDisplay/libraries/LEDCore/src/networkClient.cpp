@@ -1,10 +1,9 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
-#include <HTTPClient.h>
 #include <ArduinoJson.h>
 
 #include "networkManager.h"
-#include "wifiClient.h"
+#include "networkClient.h"
 
 String baseURL = String("http://") + SERVER_IP;
 
