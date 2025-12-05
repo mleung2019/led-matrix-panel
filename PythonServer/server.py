@@ -19,7 +19,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 @app.before_request
 def check_key():
     key = request.headers.get("X-Device-Key")
-    if key != os.environ["DEVICE_KEY"]:
+    if key != os.environ["X_DEVICE_KEY"]:
         abort(403)
 
 @app.route("/")
