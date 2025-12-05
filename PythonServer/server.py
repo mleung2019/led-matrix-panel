@@ -5,7 +5,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import asyncio
 from threading import Thread
 
-from widgets import weather, spotify, gallery, sports
+from widgets import weather, spotify, sports
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
@@ -16,11 +16,11 @@ app.config.update(
 )
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-@app.before_request
-def check_key():
-    key = request.headers.get("X-Device-Key")
-    if key != os.environ["X_DEVICE_KEY"]:
-        abort(403)
+# @app.before_request
+# def check_key():
+#     key = request.headers.get("X-Device-Key")
+#     if key != os.environ["X_DEVICE_KEY"]:
+#         abort(403)
 
 @app.route("/")
 def home():

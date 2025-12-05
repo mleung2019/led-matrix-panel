@@ -26,7 +26,7 @@ void connectWiFi() {
 
 void beginWithKey(HTTPClient &http, const String &url) {
   http.begin(url);
-  http.addHeader("X-Device-Key", X_DEVICE_KEY);
+  // http.addHeader("X-Device-Key", X_DEVICE_KEY);
 }
 
 int initLocation() {
@@ -41,7 +41,7 @@ int initLocation() {
 
   http.begin(baseURL + "/location");
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("X-Device-Key", X_DEVICE_KEY);
+  // http.addHeader("X-Device-Key", X_DEVICE_KEY);
   httpCode = http.POST(locationBody);
 
   http.end();
