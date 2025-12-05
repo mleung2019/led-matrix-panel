@@ -25,6 +25,11 @@ void connectWiFi() {
   Serial.println(" dBm");
 }
 
+void beginWithKey(HTTPClient &http, const String &url) {
+  http.begin(url);
+  http.addHeader("X-Device-Key", X_DEVICE_KEY);
+}
+
 int initLocation() {
   HTTPClient http;
   http.setTimeout(5000);
@@ -37,6 +42,7 @@ int initLocation() {
 
   http.begin(baseURL + "/location");
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-Device-Key", X_DEVICE_KEY);
   httpCode = http.POST(locationBody);
 
   http.end();
@@ -51,15 +57,15 @@ int fetchWidget(Widget *w, void *data) {
   WidgetType type = w->type;
   switch (type) {
     case WEATHER: 
-      http.begin(baseURL + "/weather"); 
+      beginWithKey(http, baseURL + "/weather"); 
       httpCode = http.GET();
       break;
     case SPOTIFY: 
-      http.begin(baseURL + "/spotify"); 
+      beginWithKey(http, baseURL + "/spotify"); 
       httpCode = http.GET();
       break;
     case SPORTS: 
-      http.begin(baseURL + "/sports"); 
+      beginWithKey(http, baseURL + "/sports"); 
       httpCode = http.GET();
       break;
   }
@@ -107,7 +113,7 @@ int fetchWidget(Widget *w, void *data) {
 
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
-  http.begin(url);
+  beginWithKey(http, url);
 
   int httpCode = http.GET();
 

@@ -1,9 +1,7 @@
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-
-    const upstream = "https://multi-use-led-matrix-64x64.onrender.com";
-    const targetURL = upstream + url.pathname + url.search;
+    const targetURL = env.UPSTREAM + url.pathname + url.search;
 
     // Copy headers
     const newHeaders = new Headers(request.headers);

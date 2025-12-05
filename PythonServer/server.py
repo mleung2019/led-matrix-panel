@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, Response, request, session, redirect
+from flask import Flask, Response, request, session, redirect, abort
 from werkzeug.middleware.proxy_fix import ProxyFix
 import asyncio
 from threading import Thread
@@ -15,6 +15,12 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
 )
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+@app.before_request
+def check_key():
+    key = request.headers.get("X-Device-Key")
+    if key != os.environ["DEVICE_KEY"]:
+        abort(403)
 
 @app.route("/")
 def home():

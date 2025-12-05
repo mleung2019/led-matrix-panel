@@ -3,7 +3,7 @@ main = "src/worker.js"
 compatibility_date = "2025-12-03"
 
 [vars]
-UPSTREAM = "https://multi-use-led-matrix-64x64.onrender.com"
+UPSTREAM = "https://server.com"
 
 [observability]
 enabled = false
