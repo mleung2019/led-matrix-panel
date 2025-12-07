@@ -38,7 +38,8 @@ int initLocation() {
   if (httpCode <= 0) { http.end(); return 1; }
 
   String locationBody = http.getString();
-  Serial.printf("Location body: %s\n", locationBody.c_str());
+  Serial.println("Location body:");
+  Serial.println(locationBody);
 
   // Update location on server
   http.begin(baseURL + "/location");
