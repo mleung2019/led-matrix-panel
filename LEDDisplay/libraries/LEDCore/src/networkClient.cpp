@@ -26,7 +26,7 @@ void connectWiFi() {
 
 void beginWithKey(HTTPClient &http, const String &url) {
   http.begin(url);
-  // http.addHeader("X-Device-Key", X_DEVICE_KEY);
+  http.addHeader("X-Device-Key", X_DEVICE_KEY);
 }
 
 int initLocation() {
@@ -38,10 +38,12 @@ int initLocation() {
   if (httpCode <= 0) { http.end(); return 1; }
 
   String locationBody = http.getString();
+  Serial.printf("Location body: %s\n", locationBody.c_str());
 
+  // Update location on server
   http.begin(baseURL + "/location");
   http.addHeader("Content-Type", "application/json");
-  // http.addHeader("X-Device-Key", X_DEVICE_KEY);
+  http.addHeader("X-Device-Key", X_DEVICE_KEY);
   httpCode = http.POST(locationBody);
 
   http.end();
@@ -115,6 +117,14 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   beginWithKey(http, url);
 
   int httpCode = http.GET();
+
+  if (httpCode != 200) {
+    Serial.printf(
+      "(IMAGE) [HTTP] result code: %d (%s)\n", 
+      httpCode,
+      http.errorToString(httpCode).c_str()
+    );
+  }
 
   if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
 

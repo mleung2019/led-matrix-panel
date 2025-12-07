@@ -16,11 +16,11 @@ app.config.update(
 )
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# @app.before_request
-# def check_key():
-#     key = request.headers.get("X-Device-Key")
-#     if key != os.environ["X_DEVICE_KEY"]:
-#         abort(403)
+@app.before_request
+def check_key():
+    key = request.headers.get("X-Device-Key")
+    if key != os.environ["X_DEVICE_KEY"]:
+        abort(403)
 
 @app.route("/")
 def home():
@@ -92,4 +92,4 @@ def get_icons():
     )
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5001)
