@@ -36,11 +36,8 @@ def get_weather():
 
 @app.route("/weather/icon")
 def get_icon():
-    return Response(
-        weather.fetch_icon(),
-        mimetype="application/octet-stream"
-    )
-
+    return image_response(weather.fetch_icon())
+     
 @app.route("/spotify/login")
 def spotify_login():
     auth_manager = spotify.get_auth_manager()
@@ -70,10 +67,7 @@ def get_track():
 
 @app.route("/spotify/cover")
 def get_cover():
-    return Response(
-        spotify.fetch_cover(),
-        mimetype="application/octet-stream"
-    )
+    return image_response(spotify.fetch_cover())
 
 @app.route("/sports")
 def get_sports():
@@ -86,10 +80,17 @@ def get_sports():
 
 @app.route("/sports/icons")
 def get_icons():
-    return Response(
-        sports.fetch_team_icons(),
-        mimetype="application/octet-stream"
-    )
+    return image_response(sports.fetch_team_icons())
+
+# Helper to return image or error
+def image_response(data):
+    if data is None:
+        abort(500)
+    else:
+        return Response(
+            data,
+            mimetype="application/octet-stream"
+        )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

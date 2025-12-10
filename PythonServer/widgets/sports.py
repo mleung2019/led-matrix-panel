@@ -39,7 +39,7 @@ def fetch_info():
 
         print("Fetching sports info...")
         for (sport_name, api) in SPORT_APIS:
-            response = requests.get(api)
+            response = requests.get(api, timeout=5)
             data = response.json()
 
             for event in data["events"]:

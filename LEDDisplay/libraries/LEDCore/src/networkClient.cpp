@@ -35,7 +35,7 @@ int initLocation() {
   
   http.begin("http://ipinfo.io/json");
   int httpCode = http.GET();
-  if (httpCode <= 0) { http.end(); return 1; }
+  if (httpCode <= 0 || httpCode >= 400) { http.end(); return 1; }
 
   String locationBody = http.getString();
   Serial.println("Location body:");
@@ -81,7 +81,7 @@ int fetchWidget(Widget *w, void *data) {
     );
   }
 
-  if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
+  if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return 1; }
 
   String payload = http.getString();
   StaticJsonDocument<1024> doc;
@@ -127,7 +127,7 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
     );
   }
 
-  if (httpCode <= 0 || networkCancel) { http.end(); return 1; }
+  if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return 1; }
 
   WiFiClient *stream = http.getStreamPtr();
 
