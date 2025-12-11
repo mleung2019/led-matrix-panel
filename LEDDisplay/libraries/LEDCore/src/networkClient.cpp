@@ -35,6 +35,7 @@ int initLocation() {
   
   http.begin("http://ipinfo.io/json");
   int httpCode = http.GET();
+  
   if (httpCode <= 0 || httpCode >= 400) { http.end(); return 1; }
 
   String locationBody = http.getString();
@@ -54,8 +55,8 @@ int initLocation() {
 int fetchWidget(Widget *w, void *data) {
   HTTPClient http;
   http.setTimeout(5000);
-  int httpCode = 0;
 
+  int httpCode = 0;
   WidgetType type = w->type;
   switch (type) {
     case WEATHER: 
@@ -115,8 +116,9 @@ int fetchWidget(Widget *w, void *data) {
 
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
-  beginWithKey(http, url);
+  http.setTimeout(5000);
 
+  beginWithKey(http, url);
   int httpCode = http.GET();
 
   if (httpCode != 200) {
