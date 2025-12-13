@@ -136,14 +136,24 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   uint8_t *dst = reinterpret_cast<uint8_t *>(frame);
   int bytesRead = 0;
 
+  unsigned long startTime = millis();
   while (bytesRead < size) {
     if (networkCancel) { http.end(); return 1; }
+
+    if (millis() - startTime > 5000) {
+      Serial.println("Image download timed out");
+      http.end();
+      return 1;
+    }
 
     int avail = stream->available();
     if (avail > 0) {
         int toRead = min(avail, size - bytesRead);
         int n = stream->readBytes(dst + bytesRead, toRead);
-        if (n > 0) bytesRead += n;
+        if (n > 0) {
+          bytesRead += n;
+          startTime = millis();
+        }
     } 
     else vTaskDelay(1);
     
