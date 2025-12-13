@@ -1,5 +1,6 @@
 import requests
 import threading
+import time
 
 import process
 
@@ -28,7 +29,6 @@ INACTIVE_IDS = ["1", "3"]
 sports_lock = threading.RLock()
 
 sports_log = []
-idx = -2
 
 def fetch_info():
     global sports_log
@@ -71,14 +71,20 @@ def fetch_info():
         
         print("Number of games to display: " + str(len(sports_log)))
 
+idx = -2
+last_fetch = 0
+
 def fetch_game():
-    global sports_log, idx
+    global sports_log, idx, last_fetch
 
     with sports_lock:
-        # Initial load
-        if idx == -2:
+        last_fetch = time.time() - last_fetch
+
+        # Initial load or refresh every 5 minutes
+        if idx == -2 or last_fetch >= 300:
             fetch_info()
             idx = -1
+            last_fetch = time.time()
 
         idx += 1
 

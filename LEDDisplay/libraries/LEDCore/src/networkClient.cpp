@@ -140,7 +140,7 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   while (bytesRead < size) {
     if (networkCancel) { http.end(); return 1; }
 
-    if (millis() - startTime > 5000) {
+    if (millis() - startTime >= 5000) {
       Serial.println("Image download timed out");
       http.end();
       return 1;
