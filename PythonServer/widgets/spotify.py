@@ -71,7 +71,7 @@ def fetch_info():
     except:
         return None
     
-    if current == None: 
+    if current == None or current["item"] == None: 
         current_cover = DUMMY_COVER_URL
         return {"is_active": False}
 
