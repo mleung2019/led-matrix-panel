@@ -78,10 +78,8 @@ def fetch_game():
     global sports_log, idx, last_fetch
 
     with sports_lock:
-        last_fetch = time.time() - last_fetch
-
         # Initial load or refresh every 5 minutes
-        if idx == -2 or last_fetch >= 300:
+        if idx == -2 or (time.time() - last_fetch >= 300):
             fetch_info()
             idx = -1
             last_fetch = time.time()
