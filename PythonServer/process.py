@@ -90,30 +90,28 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
     response = requests.get(url, timeout=5)
     if response.status_code == 200:
         img_data = BytesIO(response.content)
-        img = Image.open(img_data).convert("RGBA")
+        with Image.open(img_data).convert("RGBA") as img:
+            if preserve_ratio:
+                longest_len = max(img.size)
+                print(longest_len)
+                img = pad_to_size(img, (longest_len, longest_len))
 
-        if preserve_ratio:
-            longest_len = max(img.size)
-            print(longest_len)
-            img = pad_to_size(img, (longest_len, longest_len))
+            background = Image.new("RGBA", img.size, (0, 0, 0, 255))  # black bg
+            composite = Image.alpha_composite(background, img).resize(size)
 
-        background = Image.new("RGBA", img.size, (0, 0, 0, 255))  # black bg
-        composite = Image.alpha_composite(background, img).resize(size)
-
-        # Convert back to RGB (drops alpha but keeps background filled)
-        pil_image = composite.convert("RGB")
-
-        return convert_frame(pil_image, size=size)
+            # Convert back to RGB (drops alpha but keeps background filled)
+            pil_image = composite.convert("RGB")
+            return convert_frame(pil_image, size=size)
     else:
         return None
 
 def parse_gallery():
-    filenames = os.listdir("./gallery")
+    filenames = os.listdir("./gallery-media")
 
     # If cache file exists, use that instead
     if ".cache.pkl" in filenames:
         print("Using gallery from cache file")
-        with open("./gallery/.cache.pkl", "rb") as file:
+        with open("./gallery-media/.cache.pkl", "rb") as file:
             return pickle.load(file)
 
     gallery = []
@@ -123,32 +121,32 @@ def parse_gallery():
         
         primary, sub = mime_type.split("/")
         
-        filename = "./gallery/" + filename
+        filename = "./gallery-media/" + filename
 
         # Determine if static, panning image, or video
         if primary == "image" and sub != "gif":
-            img = Image.open(filename).convert("RGB")
-            img, pan = resize_image(img)
-            width, height = img.size
+            with Image.open(filename).convert("RGB") as img:
+                img, pan = resize_image(img)
+                width, height = img.size
 
-            # pan = 0 (static)
-            # pan = 1 (horizontal pan)
-            # pan = 2 (vertical pan)
-            if pan == 0:
-                # Stays on static image for 5 seconds
-                gallery.append(Media([convert_frame(img)], 5000))
-                continue
+                # pan = 0 (static)
+                # pan = 1 (horizontal pan)
+                # pan = 2 (vertical pan)
+                if pan == 0:
+                    # Stays on static image for 5 seconds
+                    gallery.append(Media([convert_frame(img)], 5000))
+                    continue
 
-            frames = []
-            if pan == 1:
-                for offset in range(0, width - PANEL_LENGTH + 1, 1):
-                    frames.append(convert_frame(img, offset=(offset, 0)))
-            else:
-                for offset in range(0, height - PANEL_LENGTH + 1, 1):
-                    frames.append(convert_frame(img, offset=(0, offset)))
-            
-            # Pans left/right or top/bottom in 5 seconds
-            gallery.append(Media(frames, int(5000 / len(frames))))
+                frames = []
+                if pan == 1:
+                    for offset in range(0, width - PANEL_LENGTH + 1, 1):
+                        frames.append(convert_frame(img, offset=(offset, 0)))
+                else:
+                    for offset in range(0, height - PANEL_LENGTH + 1, 1):
+                        frames.append(convert_frame(img, offset=(0, offset)))
+                
+                # Pans left/right or top/bottom in 5 seconds
+                gallery.append(Media(frames, int(5000 / len(frames))))
 
         else:
             if primary == "video":
@@ -211,7 +209,7 @@ def parse_gallery():
 
 
     # Cache the gallery object for future use
-    with open("./gallery/.cache.pkl", "wb") as file:
+    with open("./gallery-media/.cache.pkl", "wb") as file:
         print("Cached gallery")
         pickle.dump(gallery, file)
 

@@ -85,7 +85,7 @@ def get_icons():
 # Helper to return image or error
 def image_response(data):
     if data is None:
-        abort(500)
+        abort(503)
     else:
         return Response(
             data,

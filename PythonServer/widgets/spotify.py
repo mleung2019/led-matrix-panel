@@ -14,20 +14,19 @@ CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 SCOPE = "user-read-currently-playing"
-TOKEN_FILE = "./widgets/spotify_token.json"
-
-DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
+TOKEN_FILE = "./spotify-cache/spotify_token.json"
+DUMMY_COVER_FILE = "./spotify-cache/dummy-cover.bin"
 
 def load_token():
     try:
-        with open(TOKEN_FILE, "r") as f:
-            return json.load(f)
+        with open(TOKEN_FILE, "r") as file:
+            return json.load(file)
     except:
         return None
 
 def save_token(token_info):
-    with open(TOKEN_FILE, "w") as f:
-        json.dump(token_info, f)
+    with open(TOKEN_FILE, "w") as file:
+        json.dump(token_info, file)
 
 def get_auth_manager():
     return SpotifyOAuth(
@@ -72,14 +71,14 @@ def fetch_info():
         return None
     
     if current == None or current["item"] == None: 
-        current_cover = DUMMY_COVER_URL
+        current_cover = DUMMY_COVER_FILE
         return {"is_active": False}
 
     track_name = current["item"]["name"]
     artist_name = ", ".join(artist["name"] for artist in current["item"]["artists"])
     
     images = current["item"]["album"].get("images", [])
-    cover_url = images[0]["url"] if images else DUMMY_COVER_URL
+    cover_url = images[0]["url"] if images else DUMMY_COVER_FILE
     
     progress_ms = current["progress_ms"]
     duration_ms = current["item"]["duration_ms"]
@@ -103,4 +102,8 @@ def fetch_info():
     return data
 
 def fetch_cover():
-    return process.parse_url(current_cover)
+    if current_cover == DUMMY_COVER_FILE:
+        with open(DUMMY_COVER_FILE, "rb") as file:
+            return file.read()
+    else:
+        return process.parse_url(current_cover)
