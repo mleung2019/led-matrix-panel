@@ -16,6 +16,7 @@ REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 SCOPE = "user-read-currently-playing"
 TOKEN_FILE = "./spotify-cache/spotify_token.json"
 DUMMY_COVER_FILE = "./spotify-cache/dummy-cover.bin"
+DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
 
 def load_token():
     try:
@@ -71,14 +72,14 @@ def fetch_info():
         return None
     
     if current == None or current["item"] == None: 
-        current_cover = DUMMY_COVER_FILE
+        current_cover = DUMMY_COVER_URL
         return {"is_active": False}
 
     track_name = current["item"]["name"]
     artist_name = ", ".join(artist["name"] for artist in current["item"]["artists"])
     
     images = current["item"]["album"].get("images", [])
-    cover_url = images[0]["url"] if images else DUMMY_COVER_FILE
+    cover_url = images[0]["url"] if images else DUMMY_COVER_URL
     
     progress_ms = current["progress_ms"]
     duration_ms = current["item"]["duration_ms"]
@@ -102,8 +103,8 @@ def fetch_info():
     return data
 
 def fetch_cover():
-    if current_cover == DUMMY_COVER_FILE:
-        with open(DUMMY_COVER_FILE, "rb") as file:
-            return file.read()
-    else:
-        return process.parse_url(current_cover)
+    # if current_cover == DUMMY_COVER_FILE:
+    #     with open(DUMMY_COVER_FILE, "rb") as file:
+    #         return file.read()
+    # else:
+    return process.parse_url(current_cover)
