@@ -24,6 +24,9 @@ void networkTask(void *parameters) {
 
     unsigned long now = millis();
     if (now - w->lastUpdate >= w->updateInterval) {
+      Serial.println(
+        String("Attempt fetching widget data for type ") + String(currentType)
+      );
       w->lastUpdate = now;
       networkCancel = false;
       
@@ -37,7 +40,9 @@ void networkTask(void *parameters) {
       }
       if (!tempData) continue;
 
+      Serial.println("Fetching widget data from server...");
       if (!fetchWidget(w, tempData) && w->isInit && currentType == w->type) {
+        Serial.println("Widget data fetched successfully, updating display data");
         switch (currentType) {
           case WEATHER: {
             WeatherData *wd = (WeatherData *) tempData;

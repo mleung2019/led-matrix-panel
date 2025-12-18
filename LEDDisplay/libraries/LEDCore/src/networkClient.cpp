@@ -73,6 +73,8 @@ int fetchWidget(Widget *w, void *data) {
       break;
   }
 
+  Serial.println("Finished HTTP GET request for widget data");
+  
   if (httpCode != 200) {
     Serial.printf(
       "(%d) [HTTP] result code: %d (%s)\n",
@@ -94,7 +96,7 @@ int fetchWidget(Widget *w, void *data) {
     return 2;
   }
 
-  bool imgError = false;
+  int imgError = 0;
   // Parse into tempData
   switch (type) {
       case WEATHER: 
@@ -111,6 +113,9 @@ int fetchWidget(Widget *w, void *data) {
         break;
   }
   http.end();
+
+  Serial.printf("imgError code: %d\n", imgError);
+
   return imgError;
 }
 
@@ -131,12 +136,23 @@ int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
 
   if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return 1; }
 
+  int contentLength = http.getSize();
+  if (contentLength != size) {
+    Serial.printf(
+      "Bad image size: %d (expected %d)\n", 
+      contentLength, 
+      size
+    );
+    http.end();
+    return 1;
+  }
+
   WiFiClient *stream = http.getStreamPtr();
-
   uint8_t *dst = reinterpret_cast<uint8_t *>(frame);
+  
   int bytesRead = 0;
-
   unsigned long startTime = millis();
+  
   while (bytesRead < size) {
     if (networkCancel) { http.end(); return 1; }
 
