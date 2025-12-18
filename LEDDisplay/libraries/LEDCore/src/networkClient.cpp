@@ -96,23 +96,53 @@ int fetchWidget(Widget *w, void *data) {
     return 2;
   }
 
+  int fetchImage = 0;
   int imgError = 0;
   // Parse into tempData
   switch (type) {
       case WEATHER: 
-        parseWeather((WeatherData *) data, doc);
-        imgError = parseWeatherIcon((WeatherData *) data);
+        // DATA
+        fetchImage = parseWeather((WeatherData *) data, doc);
+        
+        // ICON
+        if (!w->isLoaded || fetchImage) 
+          imgError = parseWeatherIcon((WeatherData *) data);
+        else memcpy(
+          ((WeatherData *) data)->statusIcon,
+          w->weather->statusIcon,
+          ICON_PIXELS * sizeof(uint16_t)
+        );
         break;
+
       case SPOTIFY: 
-        parseSpotify((SpotifyData *) data, doc); 
-        imgError = parseSpotifyCover((SpotifyData *) data);
+        // DATA
+        fetchImage = parseSpotify((SpotifyData *) data, doc); 
+
+        // COVER
+        if (!w->isLoaded || fetchImage) 
+          imgError = parseSpotifyCover((SpotifyData *) data);
+        else memcpy(
+          ((SpotifyData *) data)->cover,
+          w->spotify->cover,
+          PANEL_PIXELS * sizeof(uint16_t)
+        );
         break;
+
       case SPORTS:
+        // DATA
         parseSports((SportsData *) data, doc);  
+
+        // ICONS
         imgError = parseSportsIcons((SportsData *) data);
         break;
   }
   http.end();
+
+  // If image fetch was requested and failed, mark widget as not loaded
+  if (fetchImage && imgError) {
+    Serial.println("Image fetch failed, marking widget as not loaded");
+    imgError = 2;
+  }
 
   Serial.printf("imgError code: %d\n", imgError);
 
@@ -122,10 +152,10 @@ int fetchWidget(Widget *w, void *data) {
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.setTimeout(5000);
-
+  Serial.printf("Starting HTTP GET request for image: %s\n", url);  
   beginWithKey(http, url);
   int httpCode = http.GET();
-
+  Serial.println("Finished HTTP GET request for image");
   if (httpCode != 200) {
     Serial.printf(
       "(IMAGE) [HTTP] result code: %d (%s)\n", 

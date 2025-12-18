@@ -15,22 +15,23 @@ void drawSpotify(SpotifyData *sd) {
   drawScroller(&sd->trackInfo, 56);
 }
 
-void parseSpotify(SpotifyData *sd, StaticJsonDocument<1024> doc) {
+int parseSpotify(SpotifyData *sd, StaticJsonDocument<1024> doc) {
   if (!doc["is_active"]) {
     strncpy(
       sd->trackInfo.msg, 
       "No track has been played recently",
       sizeof(sd->trackInfo.msg)
     );
-    return;
+  } else {
+    const char *trackStr = doc["track_name"].as<const char *>();
+    const char *artistStr = doc["artist_name"].as<const char *>();
+    sprintf(
+      sd->trackInfo.msg, 
+      "%s - %s", 
+      artistStr,
+      trackStr
+    );
   }
 
-  const char *trackStr = doc["track_name"].as<const char *>();
-  const char *artistStr = doc["artist_name"].as<const char *>();
-  sprintf(
-    sd->trackInfo.msg, 
-    "%s - %s", 
-    artistStr,
-    trackStr
-  );
+  return doc["needs_cover"];
 }

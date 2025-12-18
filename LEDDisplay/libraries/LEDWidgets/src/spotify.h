@@ -9,6 +9,6 @@ struct SpotifyData {
 };
 
 void drawSpotify(SpotifyData *sd);
-void parseSpotify(SpotifyData *sd, StaticJsonDocument<1024> doc);
+int parseSpotify(SpotifyData *sd, StaticJsonDocument<1024> doc);
 
 #endif

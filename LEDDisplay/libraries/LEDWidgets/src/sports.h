@@ -15,6 +15,6 @@ struct SportsData {
 };
 
 void drawSports(SportsData *pd);
-void parseSports(SportsData *pd, StaticJsonDocument<1024> doc);
+int parseSports(SportsData *pd, StaticJsonDocument<1024> doc);
 
 #endif

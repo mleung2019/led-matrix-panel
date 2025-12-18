@@ -41,6 +41,7 @@ void networkTask(void *parameters) {
       if (!tempData) continue;
 
       Serial.println("Fetching widget data from server...");
+      int error = 0;
       if (!fetchWidget(w, tempData) && w->isInit && currentType == w->type) {
         Serial.println("Widget data fetched successfully, updating display data");
         switch (currentType) {
@@ -72,6 +73,8 @@ void networkTask(void *parameters) {
           }
         }
         w->isLoaded = true;
+      } else if (error == 2) {
+        w->isLoaded = false;
       }
 
       switch (currentType) {

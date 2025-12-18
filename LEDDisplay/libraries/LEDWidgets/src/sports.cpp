@@ -28,11 +28,13 @@ void drawSports(SportsData *pd) {
   drawScroller(&pd->shortDetail, 55);
 }
 
-void parseSports(SportsData *pd, StaticJsonDocument<1024> doc) {
+int parseSports(SportsData *pd, StaticJsonDocument<1024> doc) {
   strncpy(pd->sportName, doc["sport_name"], sizeof(pd->sportName));
   strncpy(pd->team1Name, doc["team1_name"], sizeof(pd->team1Name));
   strncpy(pd->team1Score, doc["team1_score"], sizeof(pd->team1Score));
   strncpy(pd->team2Name, doc["team2_name"], sizeof(pd->team2Name));
   strncpy(pd->team2Score, doc["team2_score"], sizeof(pd->team2Score));
   strncpy(pd->shortDetail.msg, doc["short_detail"], sizeof(pd->shortDetail.msg));
+  
+  return 1;
 }

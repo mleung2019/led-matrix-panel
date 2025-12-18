@@ -27,7 +27,7 @@ void drawWeather(WeatherData *wd) {
   drawScroller(&wd->forecastStr, 56);
 }
 
-void parseWeather(WeatherData *wd, StaticJsonDocument<1024> doc) {
+int parseWeather(WeatherData *wd, StaticJsonDocument<1024> doc) {
   strncpy(wd->city.msg, doc["city"], sizeof(wd->city.msg));
   strncpy(wd->time, doc["time_str"], sizeof(wd->time));
 
@@ -63,4 +63,6 @@ void parseWeather(WeatherData *wd, StaticJsonDocument<1024> doc) {
       "%s:%d%c ", timeStr, temp, DEGREE_SYMBOL);
     }
   }
+
+  return doc["needs_icon"];
 }

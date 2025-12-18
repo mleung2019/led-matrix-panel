@@ -17,6 +17,6 @@ struct WeatherData {
 };
 
 void drawWeather(WeatherData *wd);
-void parseWeather(WeatherData *wd, StaticJsonDocument<1024> doc);
+int parseWeather(WeatherData *wd, StaticJsonDocument<1024> doc);
 
 #endif
