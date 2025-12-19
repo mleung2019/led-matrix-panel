@@ -73,7 +73,7 @@ void networkTask(void *parameters) {
           }
         }
         w->isLoaded = true;
-      } else if (error == 2) {
+      } else {
         w->isLoaded = false;
       }
 

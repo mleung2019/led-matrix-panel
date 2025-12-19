@@ -103,7 +103,7 @@ int fetchWidget(Widget *w, void *data) {
       case WEATHER: 
         // DATA
         fetchImage = parseWeather((WeatherData *) data, doc);
-        
+
         // ICON
         if (!w->isLoaded || fetchImage) 
           imgError = parseWeatherIcon((WeatherData *) data);
@@ -113,10 +113,9 @@ int fetchWidget(Widget *w, void *data) {
           ICON_PIXELS * sizeof(uint16_t)
         );
         break;
-
       case SPOTIFY: 
         // DATA
-        fetchImage = parseSpotify((SpotifyData *) data, doc); 
+        fetchImage = parseSpotify((SpotifyData *) data, doc);
 
         // COVER
         if (!w->isLoaded || fetchImage) 
@@ -127,10 +126,9 @@ int fetchWidget(Widget *w, void *data) {
           PANEL_PIXELS * sizeof(uint16_t)
         );
         break;
-
       case SPORTS:
         // DATA
-        parseSports((SportsData *) data, doc);  
+        parseSports((SportsData *) data, doc);
 
         // ICONS
         imgError = parseSportsIcons((SportsData *) data);
@@ -138,10 +136,8 @@ int fetchWidget(Widget *w, void *data) {
   }
   http.end();
 
-  // If image fetch was requested and failed, mark widget as not loaded
-  if (fetchImage && imgError) {
+  if (imgError) {
     Serial.println("Image fetch failed, marking widget as not loaded");
-    imgError = 2;
   }
 
   Serial.printf("imgError code: %d\n", imgError);
