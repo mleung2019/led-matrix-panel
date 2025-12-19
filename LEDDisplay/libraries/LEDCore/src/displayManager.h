@@ -6,7 +6,7 @@
 
 #include "widgetManager.h"
 
-#define DISPLAY_FPS 60
+#define DISPLAY_FPS 30
 #define FRAME_INTERVAL_MS (1000 / DISPLAY_FPS)
 
 extern MatrixPanel_I2S_DMA *display;

@@ -40,47 +40,53 @@ void networkTask(void *parameters) {
       }
       if (!tempData) continue;
 
-      Serial.println("Fetching widget data from server...");
       int error = 0;
-      if (!fetchWidget(w, tempData) && w->isInit && currentType == w->type) {
-        Serial.println("Widget data fetched successfully, updating display data");
-        switch (currentType) {
-          case WEATHER: {
-            WeatherData *wd = (WeatherData *) tempData;
+      // Did we perform a valid fetch?
+      if (!fetchWidget(w, tempData)) {
+        // Do we have access to widget data?
+        if (xSemaphoreTake(widgetMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+          // Is widget invalid?
+          if (w->isInit && currentType == w->type) {
+            switch (currentType) {
+              case WEATHER: {
+                WeatherData *wd = (WeatherData *) tempData;
 
-            updateText(&wd->city, &w->weather->city);
-            updateText(&wd->statusDesc, &w->weather->statusDesc);
-            updateText(&wd->forecastStr, &w->weather->forecastStr);
-            
-            memcpy(w->weather, wd, sizeof(WeatherData));
-            break;
+                updateText(&wd->city, &w->weather->city);
+                updateText(&wd->statusDesc, &w->weather->statusDesc);
+                updateText(&wd->forecastStr, &w->weather->forecastStr);
+
+                memcpy(w->weather, wd, sizeof(WeatherData));
+                break;
+              }
+              case SPOTIFY: {
+                SpotifyData *sd = (SpotifyData *) tempData;
+
+                updateText(&sd->trackInfo, &w->spotify->trackInfo);
+
+                memcpy(w->spotify, sd, sizeof(SpotifyData));
+                break;
+              }
+              case SPORTS: {
+                SportsData *pd = (SportsData *) tempData;
+
+                updateText(&pd->shortDetail, &w->sports->shortDetail);
+
+                memcpy(w->sports, pd, sizeof(SportsData));
+                break;
+              }
+              case CLOCK: {
+                ClockData *cd = (ClockData *) tempData;
+              
+                memcpy(w->clock, cd, sizeof(ClockData));
+              
+                break;
+              }
+            }
+            w->isLoaded = true;
           }
-          case SPOTIFY: {
-            SpotifyData *sd = (SpotifyData *) tempData;
-
-            updateText(&sd->trackInfo, &w->spotify->trackInfo);
-
-            memcpy(w->spotify, sd, sizeof(SpotifyData));
-            break;
-          }
-          case SPORTS: {
-            SportsData *pd = (SportsData *) tempData;
-
-            updateText(&pd->shortDetail, &w->sports->shortDetail);
-
-            memcpy(w->sports, pd, sizeof(SportsData));
-            break;
-          }
-          case CLOCK: {
-            ClockData *cd = (ClockData *) tempData;
-
-            memcpy(w->clock, cd, sizeof(ClockData));
-
-            break;
-          }
+          xSemaphoreGive(widgetMutex);
         }
-        w->isLoaded = true;
-      } 
+      }
       // If error == 1, image fetch failed; mark widget as not loaded
       else if (error == 1) {
         w->isLoaded = false;
@@ -94,6 +100,6 @@ void networkTask(void *parameters) {
       }
     }
 
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(50));
   }
 }

@@ -1,12 +1,11 @@
 #ifndef CLOCKW_H
 #define CLOCKW_H
 
+#include <ESP32Time.h>
 #include <widgetTool.h>
 
 struct ClockData {
-  int hour;
-  int min;
-  int sec;
+  // ESP32Time rtc(0);
 };
 
 void drawClock(ClockData *cd);

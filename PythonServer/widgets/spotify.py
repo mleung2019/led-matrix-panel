@@ -71,9 +71,12 @@ def fetch_info():
     except:
         return None
     
-    if current == None or current["item"] == None: 
-        current_cover = DUMMY_COVER_URL
-        return {"is_active": False}
+    if current == None or current["item"] == None:
+        needs_cover = False
+        if (current_cover != DUMMY_COVER_URL):
+            current_cover = DUMMY_COVER_URL
+            needs_cover = True
+        return {"is_active": False, "needs_cover": needs_cover}
 
     track_name = current["item"]["name"]
     artist_name = ", ".join(artist["name"] for artist in current["item"]["artists"])

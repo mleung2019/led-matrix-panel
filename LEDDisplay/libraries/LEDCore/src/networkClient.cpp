@@ -61,18 +61,18 @@ int fetchWidget(Widget *w, void *data) {
   switch (type) {
     case WEATHER: 
       beginWithKey(http, baseURL + "/weather"); 
-      httpCode = http.GET();
       break;
     case SPOTIFY: 
       beginWithKey(http, baseURL + "/spotify"); 
-      httpCode = http.GET();
       break;
     case SPORTS: 
       beginWithKey(http, baseURL + "/sports"); 
-      httpCode = http.GET();
+      break;
+    case CLOCK:
+      beginWithKey(http, baseURL + "/clock"); 
       break;
   }
-
+  httpCode = http.GET();
   Serial.println("Finished HTTP GET request for widget data");
   
   if (httpCode != 200) {

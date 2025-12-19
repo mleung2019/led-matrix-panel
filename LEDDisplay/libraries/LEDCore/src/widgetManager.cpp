@@ -39,7 +39,7 @@ void initWidget(Widget *w, WidgetType type) {
       break;
     case CLOCK:
       w->clock = new ClockData{};
-      w->updateInterval = 5000;
+      w->updateInterval = 300000; // 5 minutes
       break;
   }
 
