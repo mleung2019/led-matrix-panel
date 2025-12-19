@@ -23,6 +23,9 @@ void displayTask(void *parameters) {
           if (w->isLoaded) drawSports(w->sports);
           else drawCenteredText("SPORTS", 56);
           break;
+        case CLOCK:
+          drawCenteredText("CLOCK", 56);
+          break;
       }
 
       display->flipDMABuffer();

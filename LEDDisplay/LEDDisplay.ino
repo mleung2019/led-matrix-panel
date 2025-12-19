@@ -26,6 +26,11 @@ Widget widget;
 SemaphoreHandle_t widgetMutex = xSemaphoreCreateMutex();
 QueueHandle_t widgetSwitchQueue = xQueueCreate(5, sizeof(WidgetType));
 
+TaskHandle_t buttonTaskHandle;
+TaskHandle_t appTaskHandle;
+TaskHandle_t displayTaskHandle;
+TaskHandle_t networkTaskHandle;
+
 void setup() {
   // Serial
   Serial.begin(115200);
@@ -50,10 +55,10 @@ void setup() {
   display->cp437(true);
   display->setTextWrap(false);
 
-  xTaskCreatePinnedToCore(buttonTask, "ButtonTask", 2048, NULL, 3, NULL, 1);
-  xTaskCreatePinnedToCore(appTask, "AppTask", 2048, &widget, 2, NULL, 1);
-  xTaskCreatePinnedToCore(displayTask, "DisplayTask", 4096, &widget, 2, NULL, 1);
-  xTaskCreatePinnedToCore(networkTask, "NetworkTask", 16384, &widget, 1, NULL, 0);
+  xTaskCreatePinnedToCore(buttonTask, "ButtonTask", 2048, NULL, 3, &buttonTaskHandle, 1);
+  xTaskCreatePinnedToCore(appTask, "AppTask", 2048, &widget, 2, &appTaskHandle, 1);
+  xTaskCreatePinnedToCore(displayTask, "DisplayTask", 4096, &widget, 2, &displayTaskHandle, 1);
+  xTaskCreatePinnedToCore(networkTask, "NetworkTask", 16384, &widget, 1, &networkTaskHandle, 0);
 }
 
 void loop() {

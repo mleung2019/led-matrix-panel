@@ -35,6 +35,21 @@ def update_location():
     location["timezone"] = data["timezone"]
     return "Location updated", 200
 
+def get_time():
+    global location
+
+    # Time
+    tz = pytz.timezone("America/Los_Angeles")
+    now = datetime.now(tz)
+    return {
+        "year": now.year,
+        "month": now.month,
+        "day": now.day,
+        "hour": now.hour,
+        "minute": now.minute,
+        "second": now.second,
+    }
+
 async def fetch_info():
     global current_icon
     global location
@@ -118,6 +133,7 @@ async def fetch_info():
     
 def fetch_icon():
     global current_icon
+
     wmo_code, is_day = current_icon
     filename = str(int(wmo_code)) + "-" + ("day" if is_day else "night") + ".bin"
     with open("./weather-icons-24x24/" + filename, "rb") as file:

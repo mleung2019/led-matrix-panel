@@ -30,6 +30,10 @@ def home():
 def update_location():
     return weather.update_location()
 
+@app.route("/clock")
+def get_clock():
+    return weather.get_time()
+
 @app.route("/weather")
 def get_weather():
     return asyncio.run(weather.fetch_info())

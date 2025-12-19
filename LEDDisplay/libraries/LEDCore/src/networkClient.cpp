@@ -84,7 +84,7 @@ int fetchWidget(Widget *w, void *data) {
     );
   }
 
-  if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return 1; }
+  if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return -1; }
 
   String payload = http.getString();
   StaticJsonDocument<1024> doc;
@@ -92,8 +92,7 @@ int fetchWidget(Widget *w, void *data) {
     Serial.println("Failed JSON parse:");
     Serial.println(payload);
     http.end();
-    // Parsing error
-    return 2;
+    return -1;
   }
 
   int fetchImage = 0;
@@ -135,10 +134,6 @@ int fetchWidget(Widget *w, void *data) {
         break;
   }
   http.end();
-
-  if (imgError) {
-    Serial.println("Image fetch failed, marking widget as not loaded");
-  }
 
   Serial.printf("imgError code: %d\n", imgError);
 
@@ -229,7 +224,6 @@ int parseSportsIcons(SportsData *pd) {
     combinedBuffer,
     2 * ICON_PIXELS * sizeof(uint16_t)
   );
-
   if (!imgError) {
     memcpy(
       pd->team1Icon, 

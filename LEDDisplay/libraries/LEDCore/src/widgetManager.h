@@ -6,11 +6,14 @@
 #include <spotify.h>
 #include <weather.h>
 #include <sports.h>
+#include <clockw.h>
 
 enum WidgetType {
   SPOTIFY,
+  CLOCK,
   WEATHER,
-  SPORTS
+  SPORTS,
+  NUM_WIDGETS
 };
 
 // BASE WIDGET STRUCT
@@ -22,9 +25,10 @@ struct Widget {
   unsigned long lastUpdate = 0;
   unsigned long updateInterval = 5000;
   // Data
-  WeatherData* weather = nullptr;
-  SpotifyData* spotify = nullptr;
-  SportsData* sports = nullptr;
+  WeatherData *weather = nullptr;
+  SpotifyData *spotify = nullptr;
+  SportsData *sports = nullptr;
+  ClockData *clock = nullptr; 
 };
 
 extern QueueHandle_t buttonQueue;

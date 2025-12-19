@@ -11,7 +11,7 @@ void appTask(void *parameters) {
     // Switch widget on button press
     if (xQueueReceive(buttonQueue, &isPressed, portMAX_DELAY)) {
       if (isPressed) {
-        type = (type + 1) % 3;
+        type = (type + 1) % NUM_WIDGETS;
         switchToWidget(w, (WidgetType) type);
       }
     }
@@ -37,6 +37,10 @@ void initWidget(Widget *w, WidgetType type) {
       w->sports = new SportsData{};
       w->updateInterval = 5000;
       break;
+    case CLOCK:
+      w->clock = new ClockData{};
+      w->updateInterval = 5000;
+      break;
   }
 
   xQueueSend(widgetSwitchQueue, &type, 0);
@@ -57,6 +61,10 @@ void destroyWidget(Widget *w) {
     case SPORTS:
       delete w->sports;
       w->sports = nullptr;
+      break;
+    case CLOCK:
+      delete w->clock;
+      w->clock = nullptr;
       break;
   }
 

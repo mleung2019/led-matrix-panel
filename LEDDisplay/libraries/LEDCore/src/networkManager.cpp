@@ -36,7 +36,7 @@ void networkTask(void *parameters) {
         case WEATHER: tempData = new WeatherData{}; break;
         case SPOTIFY: tempData = new SpotifyData{}; break;
         case SPORTS:  tempData = new SportsData{};  break;
-        default: break;
+        case CLOCK:   tempData = new ClockData{}; break;
       }
       if (!tempData) continue;
 
@@ -71,16 +71,26 @@ void networkTask(void *parameters) {
             memcpy(w->sports, pd, sizeof(SportsData));
             break;
           }
+          case CLOCK: {
+            ClockData *cd = (ClockData *) tempData;
+
+            memcpy(w->clock, cd, sizeof(ClockData));
+
+            break;
+          }
         }
         w->isLoaded = true;
-      } else {
+      } 
+      // If error == 1, image fetch failed; mark widget as not loaded
+      else if (error == 1) {
         w->isLoaded = false;
       }
 
       switch (currentType) {
-        case WEATHER: delete (WeatherData*) tempData; break;
-        case SPOTIFY: delete (SpotifyData*) tempData; break;
-        case SPORTS:  delete (SportsData*) tempData;  break;
+        case WEATHER: delete (WeatherData *) tempData; break;
+        case SPOTIFY: delete (SpotifyData *) tempData; break;
+        case SPORTS:  delete (SportsData *) tempData;  break;
+        case CLOCK:   delete (ClockData *) tempData; break;
       }
     }
 
