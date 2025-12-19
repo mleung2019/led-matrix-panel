@@ -132,6 +132,10 @@ int fetchWidget(Widget *w, void *data) {
         // ICONS
         imgError = parseSportsIcons((SportsData *) data);
         break;
+      case CLOCK:
+        // DATA
+        parseClock((ClockData *) data, doc);
+        break;
   }
   http.end();
 

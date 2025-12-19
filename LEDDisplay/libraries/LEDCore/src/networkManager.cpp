@@ -23,7 +23,7 @@ void networkTask(void *parameters) {
     } 
 
     unsigned long now = millis();
-    if (now - w->lastUpdate >= w->updateInterval) {
+    if (!w->isLoaded || now - w->lastUpdate >= w->updateInterval) {
       Serial.println(
         String("Attempt fetching widget data for type ") + String(currentType)
       );
@@ -76,9 +76,7 @@ void networkTask(void *parameters) {
               }
               case CLOCK: {
                 ClockData *cd = (ClockData *) tempData;
-              
-                memcpy(w->clock, cd, sizeof(ClockData));
-              
+                *w->clock = *cd;
                 break;
               }
             }

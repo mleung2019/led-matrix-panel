@@ -5,7 +5,7 @@
 #include <widgetTool.h>
 
 struct ClockData {
-  // ESP32Time rtc(0);
+  ESP32Time rtc;
 };
 
 void drawClock(ClockData *cd);

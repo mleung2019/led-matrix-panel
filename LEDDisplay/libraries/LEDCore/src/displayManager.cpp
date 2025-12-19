@@ -23,9 +23,12 @@ void displayTask(void *parameters) {
           if (w->isLoaded) drawSports(w->sports);
           else drawCenteredText("SPORTS", 56);
           break;
-        case CLOCK:
+        case CLOCK: {
+          String timeStr = w->clock->rtc.getTime();
+          drawCenteredText(timeStr.c_str(), 0);
           drawCenteredText("CLOCK", 56);
           break;
+        }
       }
 
       display->flipDMABuffer();
