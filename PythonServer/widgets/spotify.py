@@ -73,8 +73,8 @@ def fetch_info():
     
     if current == None or current["item"] == None:
         needs_cover = False
-        if (current_cover != DUMMY_COVER_URL):
-            current_cover = DUMMY_COVER_URL
+        if (current_cover != DUMMY_COVER_FILE):
+            current_cover = DUMMY_COVER_FILE
             needs_cover = True
         return {"is_active": False, "needs_cover": needs_cover}
 
@@ -82,7 +82,7 @@ def fetch_info():
     artist_name = ", ".join(artist["name"] for artist in current["item"]["artists"])
     
     images = current["item"]["album"].get("images", [])
-    cover_url = images[0]["url"] if images else DUMMY_COVER_URL
+    cover_url = images[0]["url"] if images else DUMMY_COVER_FILE
     
     progress_ms = current["progress_ms"]
     duration_ms = current["item"]["duration_ms"]
@@ -106,8 +106,8 @@ def fetch_info():
     return data
 
 def fetch_cover():
-    # if current_cover == DUMMY_COVER_FILE:
-    #     with open(DUMMY_COVER_FILE, "rb") as file:
-    #         return file.read()
-    # else:
-    return process.parse_url(current_cover)
+    if current_cover == DUMMY_COVER_FILE:
+        with open(DUMMY_COVER_FILE, "rb") as file:
+            return file.read()
+    else:
+        return process.parse_url(current_cover)

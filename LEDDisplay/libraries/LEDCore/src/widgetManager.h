@@ -9,9 +9,9 @@
 #include <clockw.h>
 
 enum WidgetType {
-  SPOTIFY,
   CLOCK,
   WEATHER,
+  SPOTIFY,
   SPORTS,
   NUM_WIDGETS
 };

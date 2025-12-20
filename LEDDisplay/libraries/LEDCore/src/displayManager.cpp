@@ -24,9 +24,8 @@ void displayTask(void *parameters) {
           else drawCenteredText("SPORTS", 56);
           break;
         case CLOCK: {
-          String timeStr = w->clock->rtc.getTime();
-          drawCenteredText(timeStr.c_str(), 0);
-          drawCenteredText("CLOCK", 56);
+          if (w->isLoaded) drawClock(w->clock);
+          else drawCenteredText("CLOCK", 56);
           break;
         }
       }

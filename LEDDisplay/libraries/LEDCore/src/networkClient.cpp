@@ -73,7 +73,6 @@ int fetchWidget(Widget *w, void *data) {
       break;
   }
   httpCode = http.GET();
-  Serial.println("Finished HTTP GET request for widget data");
   
   if (httpCode != 200) {
     Serial.printf(
@@ -139,18 +138,16 @@ int fetchWidget(Widget *w, void *data) {
   }
   http.end();
 
-  Serial.printf("imgError code: %d\n", imgError);
-
   return imgError;
 }
 
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.setTimeout(5000);
-  Serial.printf("Starting HTTP GET request for image: %s\n", url);  
+
   beginWithKey(http, url);
   int httpCode = http.GET();
-  Serial.println("Finished HTTP GET request for image");
+
   if (httpCode != 200) {
     Serial.printf(
       "(IMAGE) [HTTP] result code: %d (%s)\n", 

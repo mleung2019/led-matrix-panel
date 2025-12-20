@@ -24,9 +24,6 @@ void networkTask(void *parameters) {
 
     unsigned long now = millis();
     if (!w->isLoaded || now - w->lastUpdate >= w->updateInterval) {
-      Serial.println(
-        String("Attempt fetching widget data for type ") + String(currentType)
-      );
       w->lastUpdate = now;
       networkCancel = false;
       
