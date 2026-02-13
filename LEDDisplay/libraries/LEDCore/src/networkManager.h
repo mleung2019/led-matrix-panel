@@ -2,6 +2,7 @@
 #define NETWORKMANAGER_H
 
 #include <Arduino.h>
+#include <esp_system.h>
 
 #include "widgetManager.h"
 

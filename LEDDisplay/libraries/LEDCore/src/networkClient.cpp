@@ -41,6 +41,7 @@ int initLocation() {
   String locationBody = http.getString();
   Serial.println("Location body:");
   Serial.println(locationBody);
+  http.end();
 
   // Update location on server
   http.begin(baseURL + "/location");
