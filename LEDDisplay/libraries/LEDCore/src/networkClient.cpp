@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
 #include <ArduinoJson.h>
+#include <HTTPClient.h>
 
 #include "networkManager.h"
 #include "networkClient.h"
@@ -33,7 +34,8 @@ void beginWithKey(HTTPClient &http, const String &url) {
 int initLocation() {
   HTTPClient http;
   http.setTimeout(5000);
-  
+  http.setReuse(false);
+
   http.begin("http://ipinfo.io/json");
   int httpCode = http.GET();
   
@@ -58,6 +60,7 @@ int initLocation() {
 int fetchWidget(Widget *w, void *data) {
   HTTPClient http;
   http.setTimeout(5000);
+  http.setReuse(false);
 
   int httpCode = 0;
   WidgetType type = w->type;
@@ -147,6 +150,7 @@ int fetchWidget(Widget *w, void *data) {
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.setTimeout(5000);
+  http.setReuse(false);
 
   beginWithKey(http, url);
   int httpCode = http.GET();

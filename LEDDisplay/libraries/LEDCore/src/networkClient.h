@@ -1,7 +1,7 @@
 #ifndef NETWORKCLIENT_H
 #define NETWORKCLIENT_H
 
-#include <HTTPClient.h>
+class HTTPClient;
 
 #include "config.h"
 #include "widgetManager.h"
