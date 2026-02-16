@@ -18,7 +18,10 @@ void connectWiFi() {
     ESP.restart();
   }
 
+  WiFi.setSleep(false);
+  WiFi.setAutoReconnect(true);
   Serial.println("Connected to WiFi");
+
   long rssi = WiFi.RSSI();
   Serial.print("RSSI: ");
   Serial.print(rssi);
@@ -28,13 +31,11 @@ void connectWiFi() {
 void beginWithKey(HTTPClient &http, const String &url) {
   http.begin(url);
   http.addHeader("X-Device-Key", X_DEVICE_KEY);
-  http.addHeader("Connection", "close");
 }
 
 int initLocation() {
   HTTPClient http;
   http.setTimeout(5000);
-  http.setReuse(false);
 
   http.begin("http://ipinfo.io/json");
   int httpCode = http.GET();
@@ -50,7 +51,6 @@ int initLocation() {
   http.begin(baseURL + "/location");
   http.addHeader("Content-Type", "application/json");
   http.addHeader("X-Device-Key", X_DEVICE_KEY);
-  http.addHeader("Connection", "close");
   httpCode = http.POST(locationBody);
 
   http.end();
@@ -58,9 +58,14 @@ int initLocation() {
 }
 
 int fetchWidget(Widget *w, void *data) {
+  // Detect if WiFi is connected before attempting to fetch
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected, attempting to reconnect...");
+    hardWiFiReset();
+  }
+
   HTTPClient http;
   http.setTimeout(5000);
-  http.setReuse(false);
 
   int httpCode = 0;
   WidgetType type = w->type;
@@ -87,6 +92,10 @@ int fetchWidget(Widget *w, void *data) {
       httpCode,
       http.errorToString(httpCode).c_str()
     );
+    Serial.printf("WiFi mode: %d\n", WiFi.getMode());
+    Serial.printf("RSSI: %d dBm\n", WiFi.RSSI());
+    Serial.printf("Local IP: %s\n", WiFi.localIP().toString().c_str());
+    Serial.printf("WiFi status: %d\n", WiFi.status());
   }
 
   if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return -1; }
@@ -150,7 +159,6 @@ int fetchWidget(Widget *w, void *data) {
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
   HTTPClient http;
   http.setTimeout(5000);
-  http.setReuse(false);
 
   beginWithKey(http, url);
   int httpCode = http.GET();
@@ -245,4 +253,30 @@ int parseSportsIcons(SportsData *pd) {
     );
   } 
   return imgError;
+}
+
+void hardWiFiReset() {
+  WiFi.disconnect(true);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+
+  WiFi.mode(WIFI_OFF);
+  vTaskDelay(pdMS_TO_TICKS(2000));
+
+  WiFi.mode(WIFI_STA);
+  vTaskDelay(pdMS_TO_TICKS(500));
+
+  WiFi.begin();
+
+  int retries = 0;
+  while (WiFi.status() != WL_CONNECTED && retries < 5) {
+    vTaskDelay(pdMS_TO_TICKS(500));
+    Serial.print(".");
+    retries++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+     Serial.println("\nWiFi reconnected successfully");
+  } else {
+     Serial.println("\nFailed to reconnect WiFi after reset");
+  }
 }

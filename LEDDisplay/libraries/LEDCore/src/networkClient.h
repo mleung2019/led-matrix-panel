@@ -9,6 +9,7 @@ class HTTPClient;
 extern volatile bool networkCancel;
 
 void connectWiFi();
+void hardWiFiReset();
 void beginWithKey(HTTPClient &http, const String &url);
 int initLocation();
 int writeURLtoBitmap(const char *url, uint16_t *frame, int imgLength);
