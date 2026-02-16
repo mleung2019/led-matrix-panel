@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
-#include <ArduinoJson.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 #include "networkManager.h"
 #include "networkClient.h"
@@ -29,8 +29,10 @@ void connectWiFi() {
 }
 
 void beginWithKey(HTTPClient &http, const String &url) {
+  http.setReuse(true);
   http.begin(url);
   http.addHeader("X-Device-Key", X_DEVICE_KEY);
+  http.addHeader("Connection", "keep-alive");
 }
 
 int initLocation() {
