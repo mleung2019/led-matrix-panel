@@ -1,3 +1,289 @@
+// #include <WiFi.h>
+// #include <WiFiManager.h>
+// #include <HTTPClient.h>
+// #include <ArduinoJson.h>
+
+// #include "networkManager.h"
+// #include "networkClient.h"
+
+// String baseURL = String("http://") + SERVER_IP;
+
+// void connectWiFi() {  
+//   WiFiManager wm;
+//   wm.setConfigPortalTimeout(180);
+
+//   bool res = wm.autoConnect("ESP32-LED-DISPLAY");
+//   if(!res) {
+//     Serial.println("Failed to connect");
+//     ESP.restart();
+//   }
+
+//   WiFi.setSleep(false);
+//   WiFi.setAutoReconnect(true);
+//   Serial.println("Connected to WiFi");
+
+//   long rssi = WiFi.RSSI();
+//   Serial.print("RSSI: ");
+//   Serial.print(rssi);
+//   Serial.println(" dBm");
+// }
+
+// void beginWithKey(HTTPClient &http, const String &url) {
+//   http.setReuse(true);
+//   http.begin(url);
+//   http.addHeader("X-Device-Key", X_DEVICE_KEY);
+//   http.addHeader("Connection", "keep-alive");
+// }
+
+// int initLocation() {
+//   HTTPClient http;
+//   http.setTimeout(5000);
+
+//   http.begin("http://ipinfo.io/json");
+//   int httpCode = http.GET();
+  
+//   if (httpCode <= 0 || httpCode >= 400) { http.end(); return 1; }
+
+//   String locationBody = http.getString();
+//   Serial.println("Location body:");
+//   Serial.println(locationBody);
+//   http.end();
+
+//   // Update location on server
+//   http.begin(baseURL + "/location");
+//   http.addHeader("Content-Type", "application/json");
+//   http.addHeader("X-Device-Key", X_DEVICE_KEY);
+//   httpCode = http.POST(locationBody);
+
+//   http.end();
+//   return 0;
+// }
+
+// int fetchWidget(Widget *w, void *data) {
+//   // Detect if WiFi is connected before attempting to fetch
+//   if (WiFi.status() != WL_CONNECTED) {
+//     Serial.println("WiFi disconnected, attempting to reconnect...");
+//     hardWiFiReset();
+//   }
+
+//   HTTPClient http;
+//   http.setTimeout(5000);
+
+//   int httpCode = 0;
+//   WidgetType type = w->type;
+//   switch (type) {
+//     case WEATHER: 
+//       beginWithKey(http, baseURL + "/weather"); 
+//       break;
+//     case SPOTIFY: 
+//       beginWithKey(http, baseURL + "/spotify"); 
+//       break;
+//     case SPORTS: 
+//       beginWithKey(http, baseURL + "/sports"); 
+//       break;
+//     case CLOCK:
+//       beginWithKey(http, baseURL + "/clock"); 
+//       break;
+//   }
+//   httpCode = http.GET();
+  
+//   if (httpCode != 200) {
+//     Serial.printf(
+//       "(%d) [HTTP] result code: %d (%s)\n",
+//       (int) type, 
+//       httpCode,
+//       http.errorToString(httpCode).c_str()
+//     );
+//     Serial.printf("WiFi mode: %d\n", WiFi.getMode());
+//     Serial.printf("RSSI: %d dBm\n", WiFi.RSSI());
+//     Serial.printf("Local IP: %s\n", WiFi.localIP().toString().c_str());
+//     Serial.printf("WiFi status: %d\n", WiFi.status());
+//   }
+
+//   if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return -1; }
+
+//   String payload = http.getString();
+//   StaticJsonDocument<1024> doc;
+//   if (deserializeJson(doc, payload)) {
+//     Serial.println("Failed JSON parse:");
+//     Serial.println(payload);
+//     http.end();
+//     return -1;
+//   }
+
+//   int fetchImage = 0;
+//   int imgError = 0;
+//   // Parse into tempData
+//   switch (type) {
+//       case WEATHER: 
+//         // DATA
+//         fetchImage = parseWeather((WeatherData *) data, doc);
+
+//         // ICON
+//         if (!w->isLoaded || fetchImage) 
+//           imgError = parseWeatherIcon((WeatherData *) data);
+//         else memcpy(
+//           ((WeatherData *) data)->statusIcon,
+//           w->weather->statusIcon,
+//           ICON_PIXELS * sizeof(uint16_t)
+//         );
+//         break;
+//       case SPOTIFY: 
+//         // DATA
+//         fetchImage = parseSpotify((SpotifyData *) data, doc);
+
+//         // COVER
+//         if (!w->isLoaded || fetchImage) 
+//           imgError = parseSpotifyCover((SpotifyData *) data);
+//         else memcpy(
+//           ((SpotifyData *) data)->cover,
+//           w->spotify->cover,
+//           PANEL_PIXELS * sizeof(uint16_t)
+//         );
+//         break;
+//       case SPORTS:
+//         // DATA
+//         parseSports((SportsData *) data, doc);
+
+//         // ICONS
+//         imgError = parseSportsIcons((SportsData *) data);
+//         break;
+//       case CLOCK:
+//         // DATA
+//         parseClock((ClockData *) data, doc);
+//         break;
+//   }
+//   http.end();
+
+//   return imgError;
+// }
+
+// int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
+//   HTTPClient http;
+//   http.setTimeout(5000);
+
+//   beginWithKey(http, url);
+//   int httpCode = http.GET();
+
+//   if (httpCode != 200) {
+//     Serial.printf(
+//       "(IMAGE) [HTTP] result code: %d (%s)\n", 
+//       httpCode,
+//       http.errorToString(httpCode).c_str()
+//     );
+//   }
+
+//   if (httpCode <= 0 || httpCode >= 400 || networkCancel) { http.end(); return 1; }
+
+//   int contentLength = http.getSize();
+//   if (contentLength != size) {
+//     Serial.printf(
+//       "Bad image size: %d (expected %d)\n", 
+//       contentLength, 
+//       size
+//     );
+//     http.end();
+//     return 1;
+//   }
+
+//   WiFiClient *stream = http.getStreamPtr();
+//   uint8_t *dst = reinterpret_cast<uint8_t *>(frame);
+  
+//   int bytesRead = 0;
+//   unsigned long startTime = millis();
+  
+//   while (bytesRead < size) {
+//     if (networkCancel) { http.end(); return 1; }
+
+//     if (millis() - startTime >= 5000) {
+//       Serial.println("Image download timed out");
+//       http.end();
+//       return 1;
+//     }
+
+//     int avail = stream->available();
+//     if (avail > 0) {
+//         int toRead = min(avail, size - bytesRead);
+//         int n = stream->readBytes(dst + bytesRead, toRead);
+//         if (n > 0) {
+//           bytesRead += n;
+//           startTime = millis();
+//         }
+//     } 
+//     else vTaskDelay(1);
+    
+//     if ((bytesRead & 0x3FF) == 0) vTaskDelay(1); 
+//   }
+
+//   http.end();
+//   return 0;
+// }
+
+// int parseWeatherIcon(WeatherData *wd) {
+//   return writeURLtoBitmap(
+//     (baseURL + "/weather/icon").c_str(), 
+//     wd->statusIcon,
+//     ICON_PIXELS * sizeof(uint16_t)
+//   );
+// }
+
+// int parseSpotifyCover(SpotifyData *sd) {
+//   return writeURLtoBitmap(
+//     (baseURL + "/spotify/cover").c_str(), 
+//     sd->cover,
+//     PANEL_PIXELS * sizeof(uint16_t)
+//   );
+// }
+
+// int parseSportsIcons(SportsData *pd) {
+//   uint16_t combinedBuffer[2 * ICON_PIXELS];
+//   int imgError = writeURLtoBitmap(
+//     (baseURL + "/sports/icons").c_str(), 
+//     combinedBuffer,
+//     2 * ICON_PIXELS * sizeof(uint16_t)
+//   );
+//   if (!imgError) {
+//     memcpy(
+//       pd->team1Icon, 
+//       combinedBuffer, 
+//       ICON_PIXELS * sizeof(uint16_t)
+//     );
+//     memcpy(
+//       pd->team2Icon, 
+//       combinedBuffer + ICON_PIXELS, 
+//       ICON_PIXELS * sizeof(uint16_t)
+//     );
+//   } 
+//   return imgError;
+// }
+
+// void hardWiFiReset() {
+//   WiFi.disconnect(true);
+//   vTaskDelay(pdMS_TO_TICKS(1000));
+
+//   WiFi.mode(WIFI_OFF);
+//   vTaskDelay(pdMS_TO_TICKS(2000));
+
+//   WiFi.mode(WIFI_STA);
+//   vTaskDelay(pdMS_TO_TICKS(500));
+
+//   WiFi.begin();
+
+//   int retries = 0;
+//   while (WiFi.status() != WL_CONNECTED && retries < 5) {
+//     vTaskDelay(pdMS_TO_TICKS(500));
+//     Serial.print(".");
+//     retries++;
+//   }
+
+//   if (WiFi.status() == WL_CONNECTED) {
+//      Serial.println("\nWiFi reconnected successfully");
+//   } else {
+//      Serial.println("\nFailed to reconnect WiFi after reset");
+//   }
+// }
+
+
 #include <WiFi.h>
 #include <WiFiManager.h>
 #include <HTTPClient.h>
@@ -5,6 +291,9 @@
 
 #include "networkManager.h"
 #include "networkClient.h"
+
+WiFiClient wifiClient;
+HTTPClient httpClient;
 
 String baseURL = String("http://") + SERVER_IP;
 
@@ -28,11 +317,21 @@ void connectWiFi() {
   Serial.println(" dBm");
 }
 
-void beginWithKey(HTTPClient &http, const String &url) {
-  http.setReuse(true);
-  http.begin(url);
-  http.addHeader("X-Device-Key", X_DEVICE_KEY);
-  http.addHeader("Connection", "keep-alive");
+bool beginWithKey(const String &url) {
+  if (!wifiClient.connected()) {
+    wifiClient.stop();
+  }
+
+  httpClient.setReuse(true);
+  if (!httpClient.begin(wifiClient, url)) {
+    httpClient.end();
+    return false;
+  }
+
+  httpClient.addHeader("X-Device-Key", X_DEVICE_KEY);
+  httpClient.addHeader("Connection", "keep-alive");
+
+  return true;
 }
 
 int initLocation() {
@@ -66,23 +365,23 @@ int fetchWidget(Widget *w, void *data) {
     hardWiFiReset();
   }
 
-  HTTPClient http;
+  HTTPClient &http = httpClient;
   http.setTimeout(5000);
 
   int httpCode = 0;
   WidgetType type = w->type;
   switch (type) {
     case WEATHER: 
-      beginWithKey(http, baseURL + "/weather"); 
+      if (!beginWithKey(baseURL + "/weather")) return -1;
       break;
     case SPOTIFY: 
-      beginWithKey(http, baseURL + "/spotify"); 
+      if (!beginWithKey(baseURL + "/spotify")) return -1;
       break;
     case SPORTS: 
-      beginWithKey(http, baseURL + "/sports"); 
+      if (!beginWithKey(baseURL + "/sports")) return -1;
       break;
     case CLOCK:
-      beginWithKey(http, baseURL + "/clock"); 
+      if (!beginWithKey(baseURL + "/clock")) return -1;
       break;
   }
   httpCode = http.GET();
@@ -159,10 +458,10 @@ int fetchWidget(Widget *w, void *data) {
 }
 
 int writeURLtoBitmap(const char *url, uint16_t *frame, int size) {
-  HTTPClient http;
+  HTTPClient &http = httpClient;
   http.setTimeout(5000);
 
-  beginWithKey(http, url);
+  if (!beginWithKey(url)) return 1;
   int httpCode = http.GET();
 
   if (httpCode != 200) {
@@ -258,19 +557,13 @@ int parseSportsIcons(SportsData *pd) {
 }
 
 void hardWiFiReset() {
-  WiFi.disconnect(true);
+  WiFi.disconnect();
   vTaskDelay(pdMS_TO_TICKS(1000));
-
-  WiFi.mode(WIFI_OFF);
-  vTaskDelay(pdMS_TO_TICKS(2000));
-
-  WiFi.mode(WIFI_STA);
-  vTaskDelay(pdMS_TO_TICKS(500));
 
   WiFi.begin();
 
   int retries = 0;
-  while (WiFi.status() != WL_CONNECTED && retries < 5) {
+  while (WiFi.status() != WL_CONNECTED && retries < 15) {
     vTaskDelay(pdMS_TO_TICKS(500));
     Serial.print(".");
     retries++;
