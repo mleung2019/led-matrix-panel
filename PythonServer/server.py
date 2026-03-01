@@ -29,11 +29,7 @@ def home():
 
 @app.route("/location", methods=["POST"])
 def update_location():
-    return weather.update_location()
-
-@app.route("/spoof")
-def spoof():
-    return weather.spoof()
+    return client_info.update_location()
 
 @app.route("/clock")
 def get_clock():
