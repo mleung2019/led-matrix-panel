@@ -13,6 +13,8 @@ def get_location():
     return location
 
 def update_location():
+    global location
+
     data = request.json
     location["lat"], location["lon"] = data["loc"].split(",")
     location["city"] = data["city"]
