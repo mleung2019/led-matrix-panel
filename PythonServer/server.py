@@ -7,6 +7,8 @@ from threading import Thread
 import utils.client_info as client_info
 from widgets import weather, spotify, sports
 
+# Start background processes
+Thread(target=weather.update_weather, daemon=True).start()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
@@ -98,8 +100,5 @@ def image_response(data):
         )
 
 if __name__ == "__main__":
-    # Start background processes
-    Thread(target=weather.update_weather, daemon=True).start()
-
     # Run the server
     app.run(host="0.0.0.0", port=5001)
