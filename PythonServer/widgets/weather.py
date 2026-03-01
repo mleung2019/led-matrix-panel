@@ -1,16 +1,15 @@
-from flask import request
-import pytz
-from datetime import datetime, timedelta
-import json
-
 import openmeteo_requests
 
-def get_status(weather_code, is_day):
-    wmo_code = int(weather_code)
-    with open("./weather-icons-24x24/wmo-codes.json", "r") as file:
-        data = json.load(file)
-        status = data[str(wmo_code)]["day" if is_day else "night"]
-        return status["description"]
+import threading
+import json
+import time
+from datetime import datetime, timedelta
+
+import utils.client_info as client_info
+
+weather_lock = threading.RLock()
+weather_info = None
+current_icon = None
 
 def hours_ahead(start_time_str, hours=5):
     start = datetime.strptime(start_time_str, "%I:%M%p")
@@ -20,47 +19,9 @@ def hours_ahead(start_time_str, hours=5):
         results.append(new_time.strftime("%I%p").lstrip("0"))
     return results
 
-current_icon = None
-location = {
-    "lat": None,
-    "lon": None,
-    "city": None,
-    "timezone": None
-}
-
-def update_location():
-    data = request.json
-    location["lat"], location["lon"] = data["loc"].split(",")
-    location["city"] = data["city"]
-    location["timezone"] = data["timezone"]
-    return "Location updated", 200
-
-def get_time():
-    global location
-
-    # Time
-    tz = pytz.timezone("America/Los_Angeles")
-    now = datetime.now(tz)
-    return {
-        "year": now.year,
-        "month": now.month,
-        "day": now.day,
-        "hour": now.hour,
-        "minute": now.minute,
-        "second": now.second,
-    }
-
-async def fetch_info():
-    global current_icon
-    global location
-
-    if location["lat"] is None or location["lon"] is None:
-        return "Location not set", 400
-
-    # Time
-    tz = pytz.timezone(location["timezone"])
-    now = datetime.now(tz)
-    time_str = now.strftime("%-I:%M%p")
+def fetch_info():
+    location = client_info.get_location()
+    time_str = client_info.get_time(time_str=True)
 
     # Weather
     openmeteo = openmeteo_requests.Client()
@@ -111,26 +72,54 @@ async def fetch_info():
         {"time_str": t, "temp": temp, "status": status} 
         for t, temp, status in zip(time_strs, temps, statuses)
     ]
-    # current_weather_code = 2
-    # current_is_day = 1
-    icon_tuple = (current_weather_code, current_is_day)
-    needs_icon = False
-    if icon_tuple != current_icon:
-        current_icon = icon_tuple
-        needs_icon = True
 
-    data = {
-        "time_str": time_str[:-2],
-        "city": location["city"][:120],
-        "curr_temp": round(current_temperature_2m),
-        "high_temp": round(daily_temperature_2m_max[0]),
-        "low_temp": round(daily_temperature_2m_min[0]),
-        "status": get_status(current_weather_code, current_is_day),
-        "five_hr_log": five_hr_log,
-        "needs_icon": needs_icon
-    }
+    icon_tuple = (current_weather_code, current_is_day)
+
+    data = [
+        {
+            "city": location["city"][:120],
+            "curr_temp": round(current_temperature_2m),
+            "high_temp": round(daily_temperature_2m_max[0]),
+            "low_temp": round(daily_temperature_2m_min[0]),
+            "status": get_status(current_weather_code, current_is_day),
+            "five_hr_log": five_hr_log,
+        },
+        icon_tuple
+    ]
     return data
     
+# Maps weather code and day/night info to a status description
+def get_status(weather_code, is_day):
+    wmo_code = int(weather_code)
+    with open("./weather-icons-24x24/wmo-codes.json", "r") as file:
+        data = json.load(file)
+        status = data[str(wmo_code)]["day" if is_day else "night"]
+        return status["description"]
+
+def update_weather():
+    global weather_info
+
+    while True:
+        with weather_lock:
+            weather_info = fetch_info()
+        time.sleep(60)
+
+def fetch_weather():
+    global current_icon
+
+    with weather_lock:
+        needs_icon = False
+        if weather_info[1] != current_icon:
+            current_icon = weather_info[1]
+            needs_icon = True
+
+        extra_weather_info = {
+            "time_str": client_info.get_time(time_str=True)[:-2],
+            "needs_icon": needs_icon
+        }
+
+        return weather_info[0] | extra_weather_info
+
 def fetch_icon():
     global current_icon
 

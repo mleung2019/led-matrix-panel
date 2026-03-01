@@ -2,7 +2,7 @@ import socket
 import time
 import struct
 
-from process import parse_gallery
+from utils.image_process import parse_gallery
 
 HOST = "0.0.0.0"
 PORT = 5002

@@ -1,11 +1,12 @@
 import os
 
-from flask import Flask, Response, request, session, redirect, abort
+from flask import Flask, Response, request, redirect, abort
 from werkzeug.middleware.proxy_fix import ProxyFix
-import asyncio
 from threading import Thread
 
+import utils.client_info as client_info
 from widgets import weather, spotify, sports
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
@@ -30,13 +31,17 @@ def home():
 def update_location():
     return weather.update_location()
 
+@app.route("/spoof")
+def spoof():
+    return weather.spoof()
+
 @app.route("/clock")
 def get_clock():
-    return weather.get_time()
+    return client_info.get_time()
 
 @app.route("/weather")
 def get_weather():
-    return asyncio.run(weather.fetch_info())
+    return weather.fetch_weather()
 
 @app.route("/weather/icon")
 def get_icon():
@@ -97,4 +102,8 @@ def image_response(data):
         )
 
 if __name__ == "__main__":
+    # Start background processes
+    Thread(target=weather.update_weather, daemon=True).start()
+
+    # Run the server
     app.run(host="0.0.0.0", port=5001)

@@ -2,7 +2,7 @@ import requests
 import threading
 import time
 
-import process
+import utils.image_process as image_process
 
 SPORT_APIS = [
     (   "Basketball",
@@ -103,8 +103,8 @@ def fetch_team_icons():
     with sports_lock:
         icons = sports_log[idx]
     
-    return process.parse_url(
+    return image_process.parse_url(
         icons["team1_icon"], (24, 24)
-    ) + process.parse_url(
+    ) + image_process.parse_url(
         icons["team2_icon"], (24, 24)
     )

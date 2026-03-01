@@ -3,9 +3,9 @@
 *.cache
 
 PythonServer/.venv
-PythonServer/__pycache__
-PythonServer/widgets/__pycache__
 PythonServer/spotify-cache/spotify_token.json
+*/__pycache__
+*.pyc
 
 LEDDisplay/libraries/*
 !LEDDisplay/libraries/LEDCore/

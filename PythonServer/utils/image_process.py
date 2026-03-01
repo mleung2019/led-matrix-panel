@@ -19,6 +19,7 @@ class Media:
         self.frames = frames
         self.sleep = sleep
 
+# -------- IMAGE TRANSFORMATION FUNCTIONS --------
 
 def rgb_to_rgb565(r, g, b):
     # 5 bits for red (0-31)
@@ -63,6 +64,8 @@ def pad_to_size(img, target_size):
     canvas.paste(img, (offset_x, offset_y), img)
     return canvas
 
+# -------- CONVERSION FUNCTIONS --------
+
 # Used by PIL for images
 def convert_frame(img, offset=(0, 0), size=(PANEL_LENGTH, PANEL_LENGTH)):
     rgb_values = bytearray()
@@ -104,6 +107,8 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
             return convert_frame(pil_image, size=size)
     else:
         return None
+
+# -------- GALLERY PARSE --------
 
 def parse_gallery():
     filenames = os.listdir("./gallery-media")
@@ -206,7 +211,6 @@ def parse_gallery():
                 media.sleep = DELAY_CONST
 
             print("Throttled frames:", len(media.frames))
-
 
     # Cache the gallery object for future use
     with open("./gallery-media/.cache.pkl", "wb") as file:

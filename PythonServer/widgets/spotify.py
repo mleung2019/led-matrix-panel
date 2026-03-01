@@ -1,11 +1,11 @@
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
 from dotenv import load_dotenv
 import os
 import json
 
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-
-import process
+import utils.image_process as image_process
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,7 +16,6 @@ REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 SCOPE = "user-read-currently-playing"
 TOKEN_FILE = "./spotify-cache/spotify_token.json"
 DUMMY_COVER_FILE = "./spotify-cache/dummy-cover.bin"
-DUMMY_COVER_URL = "https://www.pikpng.com/pngl/b/569-5691531_circular-question-mark-button-number-3-png-white.png"
 
 def load_token():
     try:
@@ -110,4 +109,4 @@ def fetch_cover():
         with open(DUMMY_COVER_FILE, "rb") as file:
             return file.read()
     else:
-        return process.parse_url(current_cover)
+        return image_process.parse_url(current_cover)

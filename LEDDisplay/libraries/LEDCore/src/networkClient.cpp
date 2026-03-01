@@ -563,7 +563,7 @@ void hardWiFiReset() {
   WiFi.begin();
 
   int retries = 0;
-  while (WiFi.status() != WL_CONNECTED && retries < 15) {
+  while (WiFi.status() != WL_CONNECTED && retries < 20) {
     vTaskDelay(pdMS_TO_TICKS(500));
     Serial.print(".");
     retries++;
