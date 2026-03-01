@@ -7,9 +7,6 @@ from threading import Thread
 import utils.client_info as client_info
 from widgets import weather, spotify, sports
 
-# Start background processes
-Thread(target=weather.update_weather, daemon=True).start()
-
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.config.update(

@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 
 import utils.client_info as client_info
 
-weather_lock = threading.RLock()
 weather_info = None
 current_icon = None
 
@@ -19,7 +18,17 @@ def hours_ahead(start_time_str, hours=5):
         results.append(new_time.strftime("%I%p").lstrip("0"))
     return results
 
+# Maps weather code and day/night info to a status description
+def get_status(weather_code, is_day):
+    wmo_code = int(weather_code)
+    with open("./weather-icons-24x24/wmo-codes.json", "r") as file:
+        data = json.load(file)
+        status = data[str(wmo_code)]["day" if is_day else "night"]
+        return status["description"]
+
 def fetch_info():
+    global weather_info
+
     location = client_info.get_location()
     time_str = client_info.get_time(time_str=True)
 
@@ -69,56 +78,44 @@ def fetch_info():
         for code, is_day in zip(hourly_weather_code[1:], hourly_is_day[1:])
     ]
     five_hr_log = [
-        {"time_str": t, "temp": temp, "status": status} 
+        {"time_str": t, "temp": temp} 
         for t, temp, status in zip(time_strs, temps, statuses)
     ]
 
-    icon_tuple = (current_weather_code, current_is_day)
+    weather_info = {
+        "city": location["city"][:120],
+        "curr_temp": round(current_temperature_2m),
+        "high_temp": round(daily_temperature_2m_max[0]),
+        "low_temp": round(daily_temperature_2m_min[0]),
+        "current_weather_code": current_weather_code,
+        "current_is_day": current_is_day,
+        "status": get_status(current_weather_code, current_is_day),
+        "five_hr_log": five_hr_log,
+    } 
 
-    data = [
-        {
-            "city": location["city"][:120],
-            "curr_temp": round(current_temperature_2m),
-            "high_temp": round(daily_temperature_2m_max[0]),
-            "low_temp": round(daily_temperature_2m_min[0]),
-            "status": get_status(current_weather_code, current_is_day),
-            "five_hr_log": five_hr_log,
-        },
-        icon_tuple
-    ]
-    return data
-    
-# Maps weather code and day/night info to a status description
-def get_status(weather_code, is_day):
-    wmo_code = int(weather_code)
-    with open("./weather-icons-24x24/wmo-codes.json", "r") as file:
-        data = json.load(file)
-        status = data[str(wmo_code)]["day" if is_day else "night"]
-        return status["description"]
-
-def update_weather():
-    global weather_info
-
-    while True:
-        with weather_lock:
-            weather_info = fetch_info()
-        time.sleep(60)
+last_fetch = 0
 
 def fetch_weather():
-    global current_icon
+    global current_icon, last_fetch
 
-    with weather_lock:
-        needs_icon = False
-        if weather_info[1] != current_icon:
-            current_icon = weather_info[1]
-            needs_icon = True
+    # Initial load or refresh every minute
+    if weather_info == None or (time.time() - last_fetch >= 60):
+        fetch_info()
+        last_fetch = time.time()
 
-        extra_weather_info = {
-            "time_str": client_info.get_time(time_str=True)[:-2],
-            "needs_icon": needs_icon
-        }
+    needs_icon = False
+    icon_tuple = (weather_info["current_weather_code"], 
+                    weather_info["current_is_day"])
+    if icon_tuple != current_icon:
+        current_icon = icon_tuple
+        needs_icon = True
 
-        return weather_info[0] | extra_weather_info
+    extra_weather_info = {
+        "time_str": client_info.get_time(time_str=True)[:-2],
+        "needs_icon": needs_icon
+    }
+
+    return weather_info | extra_weather_info
 
 def fetch_icon():
     wmo_code, is_day = current_icon

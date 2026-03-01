@@ -27,7 +27,6 @@ INACTIVE_IDS = ["1", "3"]
 
 # Don't rewrite sports info while sending request at the same time
 sports_lock = threading.RLock()
-
 sports_log = []
 
 def fetch_info():
@@ -98,8 +97,6 @@ def fetch_game():
         return sports_log[idx], False
 
 def fetch_team_icons():
-    global sports_log, idx
-
     with sports_lock:
         icons = sports_log[idx]
     
