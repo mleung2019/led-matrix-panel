@@ -121,8 +121,6 @@ def fetch_weather():
         return weather_info[0] | extra_weather_info
 
 def fetch_icon():
-    global current_icon
-
     wmo_code, is_day = current_icon
     filename = str(int(wmo_code)) + "-" + ("day" if is_day else "night") + ".bin"
     with open("./weather-icons-24x24/" + filename, "rb") as file:

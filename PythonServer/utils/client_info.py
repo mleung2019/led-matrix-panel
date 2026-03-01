@@ -22,10 +22,8 @@ def update_location():
     return "Location updated", 200
 
 def get_time(time_str=False):
-    global location
-
     # Time
-    tz = pytz.timezone("America/Los_Angeles")
+    tz = pytz.timezone(location["timezone"])
     now = datetime.now(tz)
 
     if time_str:
