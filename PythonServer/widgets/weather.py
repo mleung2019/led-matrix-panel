@@ -48,7 +48,7 @@ def fetch_info():
         "temperature_unit": "fahrenheit",
         "precipitation_unit": "inch",
     }
-    responses = openmeteo.weather_api(url, params=params)
+    responses = openmeteo.weather_api(url, params=params, timeout=(3, 5))
 
     # Process first location. Add a for-loop for multiple locations or weather models
     response = responses[0]
