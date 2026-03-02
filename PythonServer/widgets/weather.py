@@ -100,8 +100,14 @@ def fetch_weather():
 
     # Initial load or refresh every minute
     if weather_info == None or (time.time() - last_fetch >= 60):
-        fetch_info()
-        last_fetch = time.time()
+        try:
+            fetch_info()
+            last_fetch = time.time()
+        except Exception as e:
+            print("Weather fetch failed. Retrying on next call")
+
+    if weather_info == None:
+        return "Unable to fetch weather", 500
 
     needs_icon = False
     icon_tuple = (weather_info["current_weather_code"], 
