@@ -90,7 +90,7 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
     if url == None:
         return None
     
-    response = requests.get(url, timeout=5)
+    response = requests.get(url, timeout=4)
     if response.status_code == 200:
         img_data = BytesIO(response.content)
         with Image.open(img_data).convert("RGBA") as img:

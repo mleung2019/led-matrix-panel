@@ -48,7 +48,7 @@ def fetch_info():
         "temperature_unit": "fahrenheit",
         "precipitation_unit": "inch",
     }
-    responses = openmeteo.weather_api(url, params=params, timeout=(3, 5))
+    responses = openmeteo.weather_api(url, params=params, timeout=(3, 4))
 
     # Process first location. Add a for-loop for multiple locations or weather models
     response = responses[0]
@@ -104,7 +104,7 @@ def fetch_weather():
             fetch_info()
             last_fetch = time.time()
         except Exception as e:
-            print("Weather fetch failed. Retrying on next call")
+            print("Weather fetch failed:", e)
 
     if weather_info == None:
         return "Unable to fetch weather", 500

@@ -50,7 +50,9 @@ def get_spotify_client():
         token_info = auth_manager.refresh_access_token(token_info["refresh_token"])
         save_token(token_info)
 
-    return spotipy.Spotify(auth=token_info["access_token"])
+    return spotipy.Spotify(auth=token_info["access_token"],
+                           requests_timeout=4, retries=0, status_retries=0 
+    )
 
 # We don't want to process the Spotify cover for a song over and over again.
 # Detect when the cover changes by keeping track of the old cover url.
@@ -67,7 +69,8 @@ def fetch_info():
     # Get currently playing track
     try:
         current = sp.current_user_playing_track()
-    except:
+    except Exception as e:
+        print("Spotify fetch failed:", e)
         return None
     
     if current == None or current["item"] == None:
