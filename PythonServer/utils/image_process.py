@@ -96,7 +96,6 @@ def parse_url(url, size=(PANEL_LENGTH, PANEL_LENGTH), preserve_ratio=False):
         with Image.open(img_data).convert("RGBA") as img:
             if preserve_ratio:
                 longest_len = max(img.size)
-                print(longest_len)
                 img = pad_to_size(img, (longest_len, longest_len))
 
             background = Image.new("RGBA", img.size, (0, 0, 0, 255))  # black bg

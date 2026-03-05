@@ -36,7 +36,7 @@ def fetch_info():
         sports_log = []
         any_active = False
 
-        print("Fetching sports info...")
+        # print("Fetching sports info...")
         for (sport_name, api) in SPORT_APIS:
             response = requests.get(api, timeout=4)
             data = response.json()
@@ -68,7 +68,7 @@ def fetch_info():
         if any_active:
             sports_log = [game for game in sports_log if game["status"] not in INACTIVE_IDS]
         
-        print("Number of games to display: " + str(len(sports_log)))
+        # print("Number of games to display: " + str(len(sports_log)))
 
 idx = -2
 last_fetch = 0
