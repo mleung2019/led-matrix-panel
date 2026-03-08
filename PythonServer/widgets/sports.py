@@ -36,7 +36,6 @@ def fetch_info():
         sports_log = []
         any_active = False
 
-        # print("Fetching sports info...")
         for (sport_name, api) in SPORT_APIS:
             response = requests.get(api, timeout=4)
             data = response.json()
@@ -67,8 +66,6 @@ def fetch_info():
         
         if any_active:
             sports_log = [game for game in sports_log if game["status"] not in INACTIVE_IDS]
-        
-        # print("Number of games to display: " + str(len(sports_log)))
 
 idx = -2
 last_fetch = 0
@@ -79,7 +76,13 @@ def fetch_game():
     with sports_lock:
         # Initial load or refresh every 5 minutes
         if idx == -2 or (time.time() - last_fetch >= 300):
-            fetch_info()
+            try:
+                fetch_info()
+            except Exception as e:
+                idx = -2
+                print("Sports fetch failed:", e)
+                return ("Unable to fetch sports", 500), False
+
             idx = -1
             last_fetch = time.time()
 
@@ -91,8 +94,9 @@ def fetch_game():
             return game, True
 
         if not sports_log:
-            print("No sports available!")
-            return None, False
+            idx = -2
+            print("No sports available")
+            return ("No sports available", 500), False
 
         return sports_log[idx], False
 

@@ -107,7 +107,7 @@ def fetch_weather():
             print("Weather fetch failed:", e)
 
     if weather_info == None:
-        return "Unable to fetch weather", 500
+        return ("Unable to fetch weather", 500)
 
     needs_icon = False
     icon_tuple = (weather_info["current_weather_code"], 
